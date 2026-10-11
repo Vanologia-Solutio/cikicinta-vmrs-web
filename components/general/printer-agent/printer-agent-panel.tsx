@@ -41,7 +41,11 @@ import {
   pairingTokenSchema,
   PairingTokenValues,
 } from "@/shared/schemas/printer-agent";
-import { AgentPrintJob, AgentVoucher } from "@/shared/types/printer-agent";
+import {
+  AgentPrintJob,
+  AgentVoucher,
+  PrintJobRun,
+} from "@/shared/types/printer-agent";
 import {
   agentTroubleshooting,
   MAX_LABELS_PER_JOB,
@@ -54,20 +58,32 @@ import {
   WarningIcon,
 } from "@phosphor-icons/react";
 import { useIsFetching, useQueryClient } from "@tanstack/react-query";
-import { Fragment, useMemo, useRef, useState } from "react";
+import { Fragment, ReactNode, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { PrintJobList } from "./print-job-list";
 
 interface PrinterAgentPanelProps {
-  /** Selected vouchers, already ordered and de-duplicated. */
-  vouchers: AgentVoucher[];
+  /**
+   * Selected vouchers, already ordered and de-duplicated. Leave it out on a
+   * screen that only manages the printer: the Print button and the job list
+   * are then not shown.
+   */
+  vouchers?: AgentVoucher[];
   /** Called for every job the agent accepts, including retries. */
-  onJobQueued?: (job: AgentPrintJob, printerName: string) => void;
+  onJobQueued?: (
+    job: AgentPrintJob,
+    printerName: string,
+    run: PrintJobRun,
+  ) => void;
   /** Called once every job for the current vouchers has been accepted. */
   onSubmitted?: () => void;
   /** Limits the job list (and so what can be retried) to matching jobs. */
   jobFilter?: (job: AgentPrintJob) => boolean;
+  /** Extra actions for the selected printer, shown beside the Print button. */
+  renderPrinterActions?: (printerId: string | undefined) => ReactNode;
 }
+
+const NO_VOUCHERS: AgentVoucher[] = [];
 
 function chunk<T>(items: T[], size: number): T[][] {
   const chunks: T[][] = [];
@@ -81,11 +97,14 @@ const agentError = (error: unknown) =>
   error instanceof PrinterAgentError ? error : undefined;
 
 export function PrinterAgentPanel({
-  vouchers,
+  vouchers: givenVouchers,
   onJobQueued,
   onSubmitted,
   jobFilter,
+  renderPrinterActions,
 }: PrinterAgentPanelProps) {
+  const printsVouchers = givenVouchers !== undefined;
+  const vouchers = givenVouchers ?? NO_VOUCHERS;
   const token = usePrinterAgentToken();
   const pairingForm = useForm<PairingTokenValues>({
     resolver: zodResolver(pairingTokenSchema),
@@ -105,7 +124,12 @@ export function PrinterAgentPanel({
 
   // One key per job of a distinct print intent, so a double click or a resend
   // after a lost response can never queue the same stickers twice.
-  const intent = useRef<{ signature: string; keys: string[] } | null>(null);
+  // The jobs of one intent also share a run id, so they can be checked as one.
+  const intent = useRef<{
+    signature: string;
+    runId: string;
+    keys: string[];
+  } | null>(null);
 
   const queryClient = useQueryClient();
   const isRefreshing =
@@ -142,7 +166,7 @@ export function PrinterAgentPanel({
   }));
 
   const printerStatus = printerAgentQueries.usePrinterStatus(printerId, paired);
-  const jobs = printerAgentQueries.useJobs(paired);
+  const jobs = printerAgentQueries.useJobs(paired && printsVouchers);
   // The layout is the same for every job, so checking the first is enough.
   const preview = printerAgentQueries.usePreview(jobChunks[0] ?? [], paired);
   const createJob = printerAgentQueries.useCreateJob();
@@ -161,10 +185,11 @@ export function PrinterAgentPanel({
     if (intent.current?.signature !== signature) {
       intent.current = {
         signature,
+        runId: crypto.randomUUID(),
         keys: jobChunks.map(() => crypto.randomUUID()),
       };
     }
-    const { keys } = intent.current;
+    const { keys, runId } = intent.current;
     const printerName =
       printers.data?.find((printer) => printer.id === printerId)?.name ??
       printerId;
@@ -180,7 +205,7 @@ export function PrinterAgentPanel({
           vouchers: jobVouchers,
           confirmReprint: confirmReprint || undefined,
         });
-        onJobQueued?.(job, printerName);
+        onJobQueued?.(job, printerName, { runId, sequence: index });
       }
       intent.current = null;
       notify.success(`${stickers} queued`, {
@@ -220,6 +245,7 @@ export function PrinterAgentPanel({
         retried,
         printers.data?.find((printer) => printer.id === retried.printerId)
           ?.name ?? retried.printerId,
+        { retryOf: job.id },
       );
       notify.success("Retry queued");
     } catch (error) {
@@ -348,7 +374,7 @@ export function PrinterAgentPanel({
                           {...field}
                         />
                         <Button type="submit" disabled={isPairing}>
-                          {isPairing ? "Pairing…" : "Pair"}
+                          {isPairing ? "Pairing..." : "Pair"}
                         </Button>
                       </div>
                       {error && <FieldError errors={[error]} />}
@@ -389,19 +415,29 @@ export function PrinterAgentPanel({
                 </Select>
               </Field>
 
-              <Button
-                className="ml-auto"
-                disabled={
-                  count === 0 || !printerId || submitting || !!previewError
-                }
-                onClick={() => submit(false)}
-              >
-                <PrinterIcon />
-                {submitting ? "Queueing…" : `Print ${stickers}`}
-              </Button>
+              {renderPrinterActions && (
+                <div className="ml-auto flex items-center gap-2">
+                  {renderPrinterActions(printerId)}
+                </div>
+              )}
+              {printsVouchers && (
+                <Button
+                  className={renderPrinterActions ? undefined : "ml-auto"}
+                  disabled={
+                    count === 0 || !printerId || submitting || !!previewError
+                  }
+                  onClick={() => submit(false)}
+                >
+                  <PrinterIcon />
+                  {submitting ? "Queueing..." : `Print ${stickers}`}
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="sm"
+                className={
+                  printsVouchers || renderPrinterActions ? undefined : "ml-auto"
+                }
                 onClick={() => changeToken(null)}
               >
                 Unpair
@@ -416,38 +452,42 @@ export function PrinterAgentPanel({
               </Alert>
             )}
 
-            {count === 0 ? (
-              <p className="text-muted-foreground">
-                No vouchers selected for printing.
-              </p>
-            ) : (
-              preview.data && (
-                <p className="text-muted-foreground">
-                  {stickers} in rows of {preview.data.label.columns}, positioned
-                  by the agent ({preview.data.label.rowWidthMm} ×{" "}
-                  {preview.data.label.labelHeightMm} mm per row, bar width{" "}
-                  {preview.data.label.moduleMm.toFixed(3)} mm)
-                  {jobChunks.length > 1 &&
-                    `, sent as ${jobChunks.length} print jobs of up to ${MAX_LABELS_PER_JOB}`}
-                  .
-                </p>
-              )
-            )}
+            {printsVouchers && (
+              <Fragment>
+                {count === 0 ? (
+                  <p className="text-muted-foreground">
+                    No vouchers selected for printing.
+                  </p>
+                ) : (
+                  preview.data && (
+                    <p className="text-muted-foreground">
+                      {stickers} in rows of {preview.data.label.columns},
+                      positioned by the agent ({preview.data.label.rowWidthMm} ×{" "}
+                      {preview.data.label.labelHeightMm} mm per row, bar width{" "}
+                      {preview.data.label.moduleMm.toFixed(3)} mm)
+                      {jobChunks.length > 1 &&
+                        `, sent as ${jobChunks.length} print jobs of up to ${MAX_LABELS_PER_JOB}`}
+                      .
+                    </p>
+                  )
+                )}
 
-            <div className="flex flex-col gap-2">
-              <h3 className="font-medium">Print jobs</h3>
-              <PrintJobList
-                jobs={(jobs.data ?? []).filter(jobFilter ?? (() => true))}
-                retryingJobId={
-                  retryJob.isPending ? retryJob.variables?.jobId : undefined
-                }
-                onRetry={(job) =>
-                  retryNeedsConfirmation(job)
-                    ? setRiskyRetry(job)
-                    : retry(job, false)
-                }
-              />
-            </div>
+                <div className="flex flex-col gap-2">
+                  <h3 className="font-medium">Print jobs</h3>
+                  <PrintJobList
+                    jobs={(jobs.data ?? []).filter(jobFilter ?? (() => true))}
+                    retryingJobId={
+                      retryJob.isPending ? retryJob.variables?.jobId : undefined
+                    }
+                    onRetry={(job) =>
+                      retryNeedsConfirmation(job)
+                        ? setRiskyRetry(job)
+                        : retry(job, false)
+                    }
+                  />
+                </div>
+              </Fragment>
+            )}
           </Fragment>
         )}
       </CardContent>

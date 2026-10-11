@@ -75,11 +75,60 @@ export interface AgentLayoutPreview {
   rows: { index: number; labels: AgentLabelPreview[] }[];
 }
 
+/** The label settings the agent was started with (its .env). */
+export interface AgentLabelSettings {
+  dpi: number;
+  labelWidthMm: number;
+  labelHeightMm: number;
+  columns: number;
+  columnGapMm: number;
+  rowWidthMm: number;
+  rowGapMm: number;
+  sensor: "gap" | "bline" | "continuous";
+  offsetXMm: number;
+  offsetYMm: number;
+  moduleDots: number;
+  barHeightMm: number;
+  textFont: string;
+  textGapMm: number;
+  density?: number;
+  speed?: number;
+  direction: 0 | 1;
+  peel?: boolean;
+  tear?: boolean;
+  codeLength: number;
+  codeCharset: "numeric" | "alphanumeric";
+  maxLabelsPerJob: number;
+}
+
+export interface AgentCalibrationResult {
+  printerId: string;
+  sensor: AgentLabelSettings["sensor"];
+}
+
+export interface AgentTestPrintResult {
+  printerId: string;
+  rows: number;
+  labelCount: number;
+  /** The all-zero code printed on every test sticker. */
+  code: string;
+}
+
 export interface CreateAgentPrintJobDto {
   idempotencyKey: string;
   printerId: string;
   vouchers: AgentVoucher[];
   confirmReprint?: boolean;
+}
+
+/**
+ * Where a queued job sits among the jobs of one print action. A retry names
+ * the job it replaces instead, and takes over that job's place.
+ */
+export interface PrintJobRun {
+  runId?: string;
+  sequence?: number;
+  retryOf?: string;
 }
 
 export interface AgentResponse<T> {

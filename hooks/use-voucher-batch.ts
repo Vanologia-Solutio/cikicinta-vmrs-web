@@ -1,6 +1,7 @@
 import { voucherBatchService } from "@/services/voucher-batch-service";
 import { DEFAULT_PAGINATION_QUERY } from "@/shared/constants/common";
 import {
+  ConfirmPrintRunDto,
   CreatePrintLogDto,
   CreateVoucherBatchDto,
   PrintSelectionDto,
@@ -34,10 +35,17 @@ const VOUCHER_BATCH_QUERY_KEYS = {
       ...page(query),
       printed,
     ] as const,
-  printLogs: (id: string, query: PaginationQuery) =>
+  printLogs: (id: string, query: PaginationQuery, printRunId?: string) =>
     [
       ...VOUCHER_BATCH_QUERY_KEYS.details(id),
       "print-logs",
+      ...page(query),
+      printRunId,
+    ] as const,
+  printRuns: (id: string, query: PaginationQuery) =>
+    [
+      ...VOUCHER_BATCH_QUERY_KEYS.details(id),
+      "print-runs",
       ...page(query),
     ] as const,
   create: () => [...VOUCHER_BATCH_QUERY_KEYS.all, "create"] as const,
@@ -80,10 +88,27 @@ export const voucherBatchQueries = {
     });
   },
 
-  usePrintLogs: (id: string, query: PaginationQuery) => {
+  usePrintLogs: (
+    id: string,
+    query: PaginationQuery,
+    options?: { printRunId?: string; enabled?: boolean },
+  ) => {
     return useQuery({
-      queryKey: voucherBatchQueries.keys.printLogs(id, query),
-      queryFn: () => voucherBatchService.getPrintLogs(id, query),
+      queryKey: voucherBatchQueries.keys.printLogs(
+        id,
+        query,
+        options?.printRunId,
+      ),
+      queryFn: () =>
+        voucherBatchService.getPrintLogs(id, query, options?.printRunId),
+      enabled: options?.enabled ?? true,
+    });
+  },
+
+  usePrintRuns: (id: string, query: PaginationQuery) => {
+    return useQuery({
+      queryKey: voucherBatchQueries.keys.printRuns(id, query),
+      queryFn: () => voucherBatchService.getPrintRuns(id, query),
     });
   },
 
@@ -158,13 +183,28 @@ export const voucherBatchQueries = {
     });
   },
 
-  // A status change can move print counts on the batch, its vouchers and the
-  // list, so everything under the batch keys is refreshed.
+  // A job's status decides its run's status, so the batch's logs and runs
+  // are both refreshed.
   useUpdatePrintLog: (id: string) => {
     const queryClient = useQueryClient();
     return useMutation({
       mutationFn: (payload: UpdatePrintLogDto) =>
         voucherBatchService.updatePrintLog(id, payload),
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: voucherBatchQueries.keys.all,
+        });
+      },
+    });
+  },
+
+  // The operator's check is what moves the print counts on the batch, its
+  // vouchers and the list.
+  useConfirmPrintRun: (id: string) => {
+    const queryClient = useQueryClient();
+    return useMutation({
+      mutationFn: (payload: ConfirmPrintRunDto) =>
+        voucherBatchService.confirmPrintRun(id, payload),
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: voucherBatchQueries.keys.all,

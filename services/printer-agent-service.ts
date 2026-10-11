@@ -1,12 +1,15 @@
 import { PRINTER_AGENT_URL } from "@/shared/constants/http";
 import { getPrinterAgentToken } from "@/shared/helpers/printer-agent-token";
 import {
+  AgentCalibrationResult,
   AgentHealth,
+  AgentLabelSettings,
   AgentLayoutPreview,
   AgentPrinter,
   AgentPrinterStatus,
   AgentPrintJob,
   AgentResponse,
+  AgentTestPrintResult,
   AgentVoucher,
   CreateAgentPrintJobDto,
 } from "@/shared/types/printer-agent";
@@ -92,6 +95,26 @@ export class PrinterAgentService {
     return this.unwrap(
       this.http.get(`/printers/${encodeURIComponent(printerId)}/status`),
     );
+  }
+
+  /** Runs the printer's gap detection: feeds blank labels, prints nothing. */
+  calibratePrinter(printerId: string): Promise<AgentCalibrationResult> {
+    return this.unwrap(
+      this.http.post(`/printers/${encodeURIComponent(printerId)}/calibrate`),
+    );
+  }
+
+  /** Prints full rows of the all-zero code. Not a voucher job. */
+  testPrint(printerId: string, rows: number): Promise<AgentTestPrintResult> {
+    return this.unwrap(
+      this.http.post(`/printers/${encodeURIComponent(printerId)}/test-print`, {
+        rows,
+      }),
+    );
+  }
+
+  getLabelSettings(): Promise<AgentLabelSettings> {
+    return this.unwrap(this.http.get("/label-settings"));
   }
 
   previewLayout(vouchers: AgentVoucher[]): Promise<AgentLayoutPreview> {

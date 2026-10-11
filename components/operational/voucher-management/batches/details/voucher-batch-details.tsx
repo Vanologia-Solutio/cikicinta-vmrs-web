@@ -18,7 +18,11 @@ import { voucherBatchQueries } from "@/hooks/use-voucher-batch";
 import { errorMessage, notify } from "@/lib/toast";
 import { DEFAULT_PAGINATION_QUERY } from "@/shared/constants/common";
 import { PrintSelectionDto } from "@/shared/dtos/voucher-batch";
-import { AgentPrintJob, AgentVoucher } from "@/shared/types/printer-agent";
+import {
+  AgentPrintJob,
+  AgentVoucher,
+  PrintJobRun,
+} from "@/shared/types/printer-agent";
 import { formatSeparator } from "@/shared/utils/formatter";
 import {
   ArrowLeftIcon,
@@ -32,7 +36,7 @@ import { EditVoucherBatchDialog } from "../edit-voucher-batch-dialog";
 import { RegenerateVoucherBatchButton } from "../regenerate-voucher-batch-button";
 import { VoucherBatchStatusBadge } from "../voucher-batch-status-badge";
 import { BATCHES_PATH, formatBatchDate } from "../voucher-batches-table";
-import { BatchPrintLogsTable } from "./batch-print-logs-table";
+import { BatchPrintRunsTable } from "./batch-print-runs-table";
 import { BatchVouchersTable } from "./batch-vouchers-table";
 import { usePrintLogSync } from "./use-print-log-sync";
 
@@ -56,6 +60,16 @@ export function VoucherBatchDetails({ id }: { id: string }) {
   );
   const logs = useMemo(() => recentLogs?.data ?? [], [recentLogs]);
   usePrintLogSync(id, logs);
+
+  // Sent runs count nothing until the operator has checked the stickers.
+  const { data: recentRuns } = voucherBatchQueries.usePrintRuns(
+    id,
+    DEFAULT_PAGINATION_QUERY,
+  );
+  const runsAwaitingCheck =
+    recentRuns?.data.filter((run) => run.status === "awaiting_check").length ??
+    0;
+  const [tab, setTab] = useState("vouchers");
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   /** Vouchers staged for the printer agent panel. */
@@ -88,11 +102,15 @@ export function VoucherBatchDetails({ id }: { id: string }) {
   };
 
   const handleJobQueued = useCallback(
-    (job: AgentPrintJob, printerName: string) => {
+    (job: AgentPrintJob, printerName: string, run: PrintJobRun) => {
       createPrintLog(
         {
           printJobId: job.id,
+          printRunId: run.runId,
+          runSequence: run.sequence,
+          retryOfPrintJobId: run.retryOf,
           printerName,
+          // Print order, which the run check relies on.
           voucherIds: job.vouchers.map((voucher) => voucher.id),
         },
         {
@@ -208,7 +226,7 @@ export function VoucherBatchDetails({ id }: { id: string }) {
       )}
 
       {batch.status === "ready" && (
-        <>
+        <div className="space-y-4">
           {!batch.isActive && (
             <Alert>
               <WarningIcon />
@@ -219,7 +237,28 @@ export function VoucherBatchDetails({ id }: { id: string }) {
             </Alert>
           )}
 
-          <Tabs defaultValue="vouchers">
+          {runsAwaitingCheck > 0 && (
+            <Alert>
+              <WarningIcon />
+              <AlertTitle>
+                {runsAwaitingCheck === 1
+                  ? "1 print run is waiting for your check"
+                  : `${runsAwaitingCheck} print runs are waiting for your check`}
+              </AlertTitle>
+              <AlertDescription className="flex flex-wrap items-center gap-2">
+                Stickers are only counted as printed once you have checked them.
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setTab("print-logs")}
+                >
+                  Check now
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <Tabs value={tab} onValueChange={(next) => setTab(String(next))}>
             <TabsList>
               <TabsTrigger value="vouchers">Vouchers</TabsTrigger>
               <TabsTrigger value="print-logs">Print logs</TabsTrigger>
@@ -236,7 +275,7 @@ export function VoucherBatchDetails({ id }: { id: string }) {
               />
             </TabsContent>
             <TabsContent value="print-logs">
-              <BatchPrintLogsTable batchId={id} />
+              <BatchPrintRunsTable batchId={id} />
             </TabsContent>
           </Tabs>
 
@@ -270,7 +309,7 @@ export function VoucherBatchDetails({ id }: { id: string }) {
               )}
             </DialogContent>
           </Dialog>
-        </>
+        </div>
       )}
     </div>
   );

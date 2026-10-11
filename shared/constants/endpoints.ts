@@ -44,6 +44,7 @@ export const ENDPOINTS = {
     },
   },
   vouchers: {
+    check: "/vouchers/check",
     batches: {
       create: "/vouchers/batches",
       getAll: "/vouchers/batches",
@@ -55,6 +56,8 @@ export const ENDPOINTS = {
       printSelection: "/vouchers/batches/{id}/vouchers/print-selection",
       printLogs: "/vouchers/batches/{id}/print-logs",
       printLog: "/vouchers/batches/{id}/print-logs/{printJobId}",
+      printRuns: "/vouchers/batches/{id}/print-runs",
+      confirmPrintRun: "/vouchers/batches/{id}/print-runs/{printRunId}/confirm",
     },
     categories: {
       create: "/vouchers/categories",

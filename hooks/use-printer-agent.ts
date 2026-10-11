@@ -21,6 +21,8 @@ const PRINTER_AGENT_QUERY_KEYS = {
   printerStatus: (printerId: string) =>
     [...PRINTER_AGENT_QUERY_KEYS.all, "printer-status", printerId] as const,
   jobs: () => [...PRINTER_AGENT_QUERY_KEYS.all, "jobs"] as const,
+  labelSettings: () =>
+    [...PRINTER_AGENT_QUERY_KEYS.all, "label-settings"] as const,
   preview: (codes: string[]) =>
     [...PRINTER_AGENT_QUERY_KEYS.all, "preview", ...codes] as const,
 } as const;
@@ -83,6 +85,26 @@ export const printerAgentQueries = {
       queryFn: () => printerAgentService.previewLayout(vouchers),
       enabled: enabled && vouchers.length > 0,
       ...ON_DEMAND,
+    }),
+
+  useLabelSettings: (enabled: boolean) =>
+    useQuery({
+      queryKey: PRINTER_AGENT_QUERY_KEYS.labelSettings(),
+      queryFn: () => printerAgentService.getLabelSettings(),
+      enabled,
+      ...ON_DEMAND,
+    }),
+
+  useCalibratePrinter: () =>
+    useMutation({
+      mutationFn: (printerId: string) =>
+        printerAgentService.calibratePrinter(printerId),
+    }),
+
+  useTestPrint: () =>
+    useMutation({
+      mutationFn: (input: { printerId: string; rows: number }) =>
+        printerAgentService.testPrint(input.printerId, input.rows),
     }),
 
   useCreateJob: () => {

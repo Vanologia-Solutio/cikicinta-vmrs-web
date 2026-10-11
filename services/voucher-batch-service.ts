@@ -1,8 +1,10 @@
 import httpClient from "@/lib/http-client";
 import { ENDPOINTS } from "@/shared/constants/endpoints";
 import {
+  ConfirmPrintRunDto,
   CreatePrintLogDto,
   CreateVoucherBatchDto,
+  PrintRunConfirmation,
   PrintSelectionDto,
   UpdatePrintLogDto,
   UpdateVoucherBatchDto,
@@ -16,6 +18,7 @@ import {
   VoucherBatchDetail,
   VoucherPrintedFilter,
   VoucherPrintLog,
+  VoucherPrintRun,
 } from "@/shared/types/voucher-batch";
 import { AxiosInstance } from "axios";
 
@@ -87,13 +90,37 @@ class VoucherBatchService {
     return res.data;
   }
 
+  /** Jobs of the batch, newest first; or the jobs of one run, in run order. */
   async getPrintLogs(
     id: string,
     query: PaginationQuery,
+    printRunId?: string,
   ): Promise<PaginatedResponse<VoucherPrintLog>> {
     const res = await this.httpClient.get(withId(batches.printLogs, id), {
+      params: { ...query, printRunId },
+    });
+    return res.data;
+  }
+
+  async getPrintRuns(
+    id: string,
+    query: PaginationQuery,
+  ): Promise<PaginatedResponse<VoucherPrintRun>> {
+    const res = await this.httpClient.get(withId(batches.printRuns, id), {
       params: query,
     });
+    return res.data;
+  }
+
+  async confirmPrintRun(
+    id: string,
+    payload: ConfirmPrintRunDto,
+  ): Promise<ApiResponse<PrintRunConfirmation>> {
+    const { printRunId, ...rest } = payload;
+    const res = await this.httpClient.post(
+      withId(batches.confirmPrintRun, id).replace("{printRunId}", printRunId),
+      rest,
+    );
     return res.data;
   }
 

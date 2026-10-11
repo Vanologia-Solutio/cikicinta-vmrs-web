@@ -3,25 +3,38 @@ import {
   usePrinterAgentToken,
 } from "@/hooks/use-printer-agent";
 import { voucherBatchQueries } from "@/hooks/use-voucher-batch";
-import { VoucherPrintLog } from "@/shared/types/voucher-batch";
-import { isJobPrinted } from "@/shared/utils/printer-agent";
+import {
+  VoucherPrintLog,
+  VoucherPrintLogStatus,
+} from "@/shared/types/voucher-batch";
 import { useEffect, useRef } from "react";
+
+const DECIDED = new Set<VoucherPrintLogStatus>([
+  "completed",
+  "partial",
+  "rejected",
+]);
 
 /**
  * Keeps this batch's print logs in step with the printer agent, which is the
  * only place a job's real status is known. Every status the agent reports and
- * the log has not recorded yet is sent to the API; that is also what moves the
- * print counts once a job is accepted by the printer.
+ * the log has not recorded yet is sent to the API. Being sent to the printer
+ * counts nothing: that waits for the operator's check of the run.
  *
- * The agent is only asked while this batch has a log that is still queued or
- * processing; with none, the page makes no agent request at all. A job that
+ * The agent is only asked while this batch has a log that is still queued,
+ * processing or unknown; with none, the page makes no agent request at all. A job that
  * finished while the page was closed is picked up on the next visit, as long
  * as the agent still has it in its history.
  */
 export function usePrintLogSync(batchId: string, logs: VoucherPrintLog[]) {
   const token = usePrinterAgentToken();
+  // `unknown` counts too: a job held up by a paused printer is corrected by
+  // the agent once it goes through, and the log should follow.
   const hasJobInFlight = logs.some(
-    (log) => log.status === "queued" || log.status === "processing",
+    (log) =>
+      log.status === "queued" ||
+      log.status === "processing" ||
+      log.status === "unknown",
   );
   const jobs = printerAgentQueries.useJobs(!!token && hasJobInFlight);
   const { mutate: updatePrintLog } =
@@ -36,8 +49,8 @@ export function usePrintLogSync(batchId: string, logs: VoucherPrintLog[]) {
 
     for (const log of logs) {
       const job = jobById.get(log.printJobId);
-      // A printed log is final: its stickers are already counted.
-      if (!job || job.status === log.status || isJobPrinted(log.status)) {
+      // The operator's decision on a job is final; the agent cannot undo it.
+      if (!job || job.status === log.status || DECIDED.has(log.status)) {
         continue;
       }
 
@@ -50,7 +63,6 @@ export function usePrintLogSync(batchId: string, logs: VoucherPrintLog[]) {
           printJobId: job.id,
           status: job.status,
           errorMessage: job.error ?? undefined,
-          voucherIds: job.vouchers.map((voucher) => voucher.id),
         },
         // Let the next poll try again.
         { onError: () => reported.current.delete(key) },

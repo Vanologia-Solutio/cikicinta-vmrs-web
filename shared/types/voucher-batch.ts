@@ -40,19 +40,49 @@ export interface Voucher extends BaseEntityWithId {
   lastPrintedAt: string | null;
 }
 
+/**
+ * The agent's statuses, plus the two only the operator's check can produce:
+ * `partial` (the job a run stopped in) and `rejected` (did not print).
+ */
+export type VoucherPrintLogStatus = PrintJobStatus | "partial" | "rejected";
+
 export interface VoucherPrintLog {
   id: string;
   /** The printer agent's job id. */
   printJobId: string;
+  /** Shared by every job of one print action. */
+  printRunId: string;
+  runSequence: number;
   requestedBy: string | null;
   printerName: string | null;
   quantityRequested: string;
   quantityCompleted: string;
-  status: PrintJobStatus;
+  status: VoucherPrintLogStatus;
   errorMessage: string | null;
   startedAt: string | null;
   completedAt: string | null;
   createdAt: string;
+}
+
+export type VoucherPrintRunStatus =
+  | "in_progress"
+  | "awaiting_check"
+  | "printed"
+  | "partly_printed"
+  | "not_printed"
+  | "failed";
+
+/** One print action: every job the agent was given for it. */
+export interface VoucherPrintRun {
+  printRunId: string;
+  createdAt: string;
+  completedAt: string | null;
+  printerName: string | null;
+  jobCount: number;
+  quantityRequested: number;
+  /** Stickers the operator confirmed as printed. */
+  quantityCompleted: number;
+  status: VoucherPrintRunStatus;
 }
 
 export type VoucherPrintedFilter = "all" | "printed" | "unprinted";

@@ -3,10 +3,6 @@ import { AgentPrintJob, PrintJobStatus } from "../types/printer-agent";
 /** The agent's default MAX_LABELS_PER_JOB; larger selections are split. */
 export const MAX_LABELS_PER_JOB = 300;
 
-/** The printer has accepted the stickers. */
-export const isJobPrinted = (status: PrintJobStatus) =>
-  status === "submitted" || status === "completed";
-
 interface JobStatusPresentation {
   label: string;
   variant: "default" | "secondary" | "outline" | "destructive";
@@ -76,6 +72,10 @@ const TROUBLESHOOTING: Record<string, string> = {
     "The selected printer is no longer available to the agent. Pick another printer.",
   layout_does_not_fit:
     "The barcode does not fit the label with the agent's current settings.",
+  printer_busy:
+    "A print job is still running. Wait for it to finish, then try again.",
+  calibration_not_supported:
+    "The agent is set to continuous media (no sensor), so there is nothing to calibrate.",
 };
 
 export const agentTroubleshooting = (code?: string): string | undefined =>

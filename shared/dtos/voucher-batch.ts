@@ -22,7 +22,11 @@ export type PrintSelectionDto =
 
 export interface CreatePrintLogDto {
   printJobId: string;
+  printRunId?: string;
+  runSequence?: number;
+  retryOfPrintJobId?: string;
   printerName?: string;
+  /** In print order. */
   voucherIds: string[];
 }
 
@@ -30,5 +34,18 @@ export interface UpdatePrintLogDto {
   printJobId: string;
   status: PrintJobStatus;
   errorMessage?: string;
-  voucherIds?: string[];
+}
+
+export type PrintRunOutcome = "all" | "none" | "stopped_at";
+
+export interface ConfirmPrintRunDto {
+  printRunId: string;
+  outcome: PrintRunOutcome;
+  /** Code on the last sticker that printed correctly. */
+  lastPrintedCode?: string;
+}
+
+export interface PrintRunConfirmation {
+  printed: number;
+  notPrinted: number;
 }

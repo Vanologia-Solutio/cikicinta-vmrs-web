@@ -1,5 +1,5 @@
 import { PageHeader } from "@/components/general/page-header";
-import { StickerPrintPlayground } from "@/components/platform/playground/sticker-print/sticker-print-playground";
+import { VoucherCheck } from "@/components/platform/playground/voucher-check/voucher-check";
 import { PAGE_ANIMATE_IN } from "@/shared/constants/common";
 
 export default function PlaygroundPage() {
@@ -7,9 +7,9 @@ export default function PlaygroundPage() {
     <main className={PAGE_ANIMATE_IN}>
       <PageHeader
         title="Playground"
-        description="Thermal sticker printing through the printer agent."
+        description="Check a voucher barcode. Nothing is redeemed."
       />
-      <StickerPrintPlayground />
+      <VoucherCheck />
     </main>
   );
 }
