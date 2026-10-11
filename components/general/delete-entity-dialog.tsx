@@ -92,7 +92,6 @@ export function DeleteEntityDialog({
                   aria-invalid={fieldState.invalid}
                   placeholder={entityName}
                   disabled={isDeleting}
-                  autoComplete="off"
                   {...field}
                 />
                 {fieldState.error && <FieldError errors={[fieldState.error]} />}

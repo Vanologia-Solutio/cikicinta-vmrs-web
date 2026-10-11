@@ -245,7 +245,6 @@ export function ComboboxSearch({
             }
             value={inputValue}
             onValueChange={setInputValue}
-            autoComplete="off"
           />
           <CommandList>
             {isLoading ? (

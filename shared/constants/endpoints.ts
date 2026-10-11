@@ -43,6 +43,32 @@ export const ENDPOINTS = {
       update: "/platform/responsibilities",
     },
   },
+  vouchers: {
+    batches: {
+      create: "/vouchers/batches",
+      getAll: "/vouchers/batches",
+      getById: "/vouchers/batches/{id}",
+      update: "/vouchers/batches/{id}",
+      delete: "/vouchers/batches/{id}",
+      regenerate: "/vouchers/batches/{id}/regenerate",
+      vouchers: "/vouchers/batches/{id}/vouchers",
+      printSelection: "/vouchers/batches/{id}/vouchers/print-selection",
+      printLogs: "/vouchers/batches/{id}/print-logs",
+      printLog: "/vouchers/batches/{id}/print-logs/{printJobId}",
+    },
+    categories: {
+      create: "/vouchers/categories",
+      getAll: "/vouchers/categories",
+      update: "/vouchers/categories/{id}",
+      delete: "/vouchers/categories/{id}",
+    },
+    benefits: {
+      create: "/vouchers/benefits",
+      getAll: "/vouchers/benefits",
+      update: "/vouchers/benefits/{id}",
+      delete: "/vouchers/benefits/{id}",
+    },
+  },
   formSchemas: {
     getFormSchemaByKey: "/form-schemas",
   },
@@ -59,5 +85,7 @@ export const ENDPOINTS = {
     getActiveTimezones: "/master-data/timezones",
     getActiveModules: "/master-data/modules",
     getActiveMenus: "/master-data/menus",
+    getActiveVoucherCategories: "/master-data/voucher-categories",
+    getActiveVoucherBenefits: "/master-data/voucher-benefits",
   },
 } as const;

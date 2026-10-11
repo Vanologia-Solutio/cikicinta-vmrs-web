@@ -9,4 +9,10 @@ export enum FormSchemaKeys {
   EDIT_MODULE = "edit-module",
   CREATE_MENU = "create-menu",
   EDIT_MENU = "edit-menu",
+  CREATE_VOUCHER_CATEGORY = "create-voucher-category",
+  EDIT_VOUCHER_CATEGORY = "edit-voucher-category",
+  CREATE_VOUCHER_BENEFIT = "create-voucher-benefit",
+  EDIT_VOUCHER_BENEFIT = "edit-voucher-benefit",
+  CREATE_VOUCHER_BATCH = "create-voucher-batch",
+  EDIT_VOUCHER_BATCH = "edit-voucher-batch",
 }

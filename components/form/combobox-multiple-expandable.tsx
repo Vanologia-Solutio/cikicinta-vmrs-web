@@ -130,7 +130,7 @@ export function ComboboxMultipleExpandable({
       </PopoverTrigger>
       <PopoverContent className="w-(--anchor-width) min-w-56 p-0">
         <Command>
-          <CommandInput placeholder={placeholder} autoComplete="off" />
+          <CommandInput placeholder={placeholder} />
           <CommandList>
             <CommandEmpty>No items found.</CommandEmpty>
             <CommandGroup>

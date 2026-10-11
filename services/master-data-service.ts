@@ -50,6 +50,23 @@ class MasterDataService {
     return res.data;
   }
 
+  async getActiveVoucherCategories(): Promise<ApiResponse<IdName[]>> {
+    const res = await this.httpClient.get(
+      ENDPOINTS.masterData.getActiveVoucherCategories,
+    );
+    return res.data;
+  }
+
+  async getActiveVoucherBenefits(
+    categoryId?: string,
+  ): Promise<ApiResponse<IdName[]>> {
+    const res = await this.httpClient.get(
+      ENDPOINTS.masterData.getActiveVoucherBenefits,
+      { params: { categoryId } },
+    );
+    return res.data;
+  }
+
   async getActiveTimezones(
     keyword: string,
   ): Promise<ApiResponse<ValueLabel[]>> {

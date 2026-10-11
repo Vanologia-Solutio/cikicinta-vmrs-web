@@ -12,6 +12,14 @@ const MASTER_DATA_QUERY_KEYS = {
     [...MASTER_DATA_QUERY_KEYS.all, "active-modules"] as const,
   activeMenus: (excludeId?: string) =>
     [...MASTER_DATA_QUERY_KEYS.all, "active-menus", excludeId] as const,
+  activeVoucherCategories: () =>
+    [...MASTER_DATA_QUERY_KEYS.all, "active-voucher-categories"] as const,
+  activeVoucherBenefits: (categoryId?: string) =>
+    [
+      ...MASTER_DATA_QUERY_KEYS.all,
+      "active-voucher-benefits",
+      categoryId,
+    ] as const,
 } as const;
 
 interface Options {
@@ -54,6 +62,23 @@ export const masterDataQueries = {
     useQuery({
       queryKey: masterDataQueries.keys.activeMenus(options?.excludeId),
       queryFn: () => masterDataService.getActiveMenus(options?.excludeId),
+      enabled: options?.enabled ?? true,
+    }),
+
+  useActiveVoucherCategories: (options?: Options) =>
+    useQuery({
+      queryKey: masterDataQueries.keys.activeVoucherCategories(),
+      queryFn: () => masterDataService.getActiveVoucherCategories(),
+      enabled: options?.enabled ?? true,
+    }),
+
+  useActiveVoucherBenefits: (options?: Options & { categoryId?: string }) =>
+    useQuery({
+      queryKey: masterDataQueries.keys.activeVoucherBenefits(
+        options?.categoryId,
+      ),
+      queryFn: () =>
+        masterDataService.getActiveVoucherBenefits(options?.categoryId),
       enabled: options?.enabled ?? true,
     }),
 };

@@ -517,7 +517,7 @@ export function DynamicForm<T extends FieldValues>({
   };
 
   return (
-    <form id={formId} onSubmit={form.handleSubmit(onSubmit)} autoComplete="off">
+    <form id={formId} onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup className="mb-4">
         {fields.map((row, rowIndex) => {
           const attachToPrevious =
