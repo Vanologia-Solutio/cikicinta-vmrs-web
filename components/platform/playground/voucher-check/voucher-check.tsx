@@ -1,7 +1,7 @@
 "use client";
 
+import { VoucherResultCard } from "@/components/general/voucher-result-card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -24,39 +24,10 @@ import {
   VoucherCheckValues,
 } from "@/shared/schemas/voucher-check";
 import { VoucherCheckResult } from "@/shared/types/voucher-check";
-import { formatTag } from "@/shared/utils/formatter";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  CheckCircleIcon,
-  InfoIcon,
-  MagnifyingGlassIcon,
-  XCircleIcon,
-} from "@phosphor-icons/react";
-import { format, parseISO } from "date-fns";
+import { InfoIcon, MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-
-const formatDate = (date: string | null | undefined, fallback: string) =>
-  date ? format(parseISO(date), "dd MMM yyyy") : fallback;
-
-function details(result: VoucherCheckResult): [string, string][] {
-  return [
-    ["Category", result.category?.name ?? "-"],
-    ["Benefit", result.benefit?.name ?? "-"],
-    ["Valid from", formatDate(result.batch?.validFrom, "-")],
-    ["Expires", formatDate(result.batch?.expiredAt, "No expiry")],
-    [
-      "Origin tenant",
-      result.originTenant
-        ? [result.originTenant.name, result.originTenant.code]
-            .filter(Boolean)
-            .join(" - ")
-        : "-",
-    ],
-    ["Voucher status", result.voucher ? formatTag(result.voucher.status) : "-"],
-    ["Batch", result.batch?.batchCode ?? "-"],
-  ];
-}
 
 export function VoucherCheck() {
   const [result, setResult] = useState<VoucherCheckResult | null>(null);
@@ -138,43 +109,7 @@ export function VoucherCheck() {
         </CardContent>
       </Card>
 
-      {result && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <CardTitle>{result.code}</CardTitle>
-              <Badge variant={result.eligible ? "default" : "destructive"}>
-                {result.eligible ? <CheckCircleIcon /> : <XCircleIcon />}
-                {result.eligible ? "Eligible" : "Not eligible"}
-              </Badge>
-            </div>
-            {!result.eligible && (
-              <CardDescription>
-                <ul className="list-disc list-inside">
-                  {result.reasons.map((reason) => (
-                    <li key={reason}>{reason}</li>
-                  ))}
-                </ul>
-              </CardDescription>
-            )}
-          </CardHeader>
-          {result.found && (
-            <CardContent>
-              <dl className="grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2">
-                {details(result).map(([label, value]) => (
-                  <div
-                    key={label}
-                    className="flex justify-between gap-4 border-b py-1"
-                  >
-                    <dt className="text-muted-foreground">{label}</dt>
-                    <dd className="text-right font-medium">{value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </CardContent>
-          )}
-        </Card>
-      )}
+      {result && <VoucherResultCard result={result} />}
     </div>
   );
 }

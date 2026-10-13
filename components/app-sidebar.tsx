@@ -1,7 +1,7 @@
 "use client";
 
-import * as React from "react";
 import Link from "next/link";
+import * as React from "react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -15,9 +15,9 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { HOME_ROUTE, PROJECT_NAME } from "@/shared/constants/common";
+import { HOME_ROUTE } from "@/shared/constants/common";
 import { useAuthStore } from "@/shared/stores/auth-store";
-import { TicketIcon } from "@phosphor-icons/react";
+import { WavesIcon } from "@phosphor-icons/react";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, accessibleMenus } = useAuthStore();
@@ -29,12 +29,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" render={<Link href={HOME_ROUTE} />}>
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                <TicketIcon className="size-4" />
+                <WavesIcon />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{PROJECT_NAME}</span>
-                <span className="truncate text-xs">
+                <span className="truncate font-medium">
                   {user?.attrs.tenant.name}
+                </span>
+                <span className="truncate text-xs">
+                  {user?.attrs.tenant.timezone}
                 </span>
               </div>
             </SidebarMenuButton>

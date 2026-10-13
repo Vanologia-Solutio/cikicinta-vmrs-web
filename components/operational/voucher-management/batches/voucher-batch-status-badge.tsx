@@ -7,6 +7,7 @@ const STATUS_PRESENTATION: Record<
   { label: string; variant: "default" | "secondary" | "destructive" }
 > = {
   generating: { label: "Generating", variant: "secondary" },
+  receiving: { label: "Receiving", variant: "secondary" },
   ready: { label: "Ready", variant: "default" },
   failed: { label: "Generation failed", variant: "destructive" },
 };
@@ -19,7 +20,9 @@ export function VoucherBatchStatusBadge({
   const presentation = STATUS_PRESENTATION[status];
   return (
     <Badge variant={presentation.variant}>
-      {status === "generating" && <SpinnerGapIcon className="animate-spin" />}
+      {(status === "generating" || status === "receiving") && (
+        <SpinnerGapIcon className="animate-spin" />
+      )}
       {presentation.label}
     </Badge>
   );

@@ -16,6 +16,12 @@ const columns: AppColumnDef<Tenant>[] = [
   {
     accessorKey: "name",
     header: "Name",
+    cell: ({ row }) => (
+      <div className="space-y-0.5">
+        <p className="font-medium">{row.original.name}</p>
+        <p className="text-[10px] text-muted-foreground">{row.original.id}</p>
+      </div>
+    ),
   },
   {
     accessorKey: "code",

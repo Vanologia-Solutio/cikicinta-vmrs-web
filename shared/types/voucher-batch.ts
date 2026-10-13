@@ -1,7 +1,12 @@
 import { BaseEntityWithId } from "./general";
 import { PrintJobStatus } from "./printer-agent";
 
-export type VoucherBatchStatus = "generating" | "ready" | "failed";
+/**
+ * `receiving` only occurs at a site the batch was sent to: the batch has
+ * arrived but not all of its vouchers yet.
+ */
+export type VoucherBatchStatus =
+  "generating" | "receiving" | "ready" | "failed";
 
 interface NamedRef {
   id: string;

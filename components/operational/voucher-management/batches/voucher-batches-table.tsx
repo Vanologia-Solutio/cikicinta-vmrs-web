@@ -82,7 +82,7 @@ const columns: AppColumnDef<VoucherBatch>[] = [
   {
     id: "actions",
     header: "Actions",
-    size: 120,
+    size: 140,
     cell: ({ row }) => (
       <EntityTableActions
         actions={VOUCHER_BATCH_TABLE_ACTIONS}
