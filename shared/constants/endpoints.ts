@@ -42,27 +42,6 @@ export const ENDPOINTS = {
       get: "/platform/responsibilities",
       update: "/platform/responsibilities",
     },
-    syncRoutes: {
-      create: "/platform/sync-routes",
-      getAll: "/platform/sync-routes",
-      update: "/platform/sync-routes/{id}",
-      delete: "/platform/sync-routes/{id}",
-    },
-    syncSchedules: {
-      create: "/platform/sync-schedules",
-      getAll: "/platform/sync-schedules",
-      update: "/platform/sync-schedules/{id}",
-      delete: "/platform/sync-schedules/{id}",
-    },
-  },
-  sync: {
-    health: "/sync/health",
-    run: "/sync/run",
-    outbox: "/sync/outbox",
-    retryOutbox: "/sync/outbox/{id}/retry",
-    conflicts: "/sync/conflicts",
-    resolveConflict: "/sync/conflicts/{id}/resolve",
-    republishBatch: "/sync/batches/{id}/republish",
   },
   vouchers: {
     check: "/vouchers/check",

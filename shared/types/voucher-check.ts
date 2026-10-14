@@ -10,7 +10,7 @@ export interface VoucherCheckResult {
   eligible: boolean;
   /** Why the voucher is not eligible; empty when it is. */
   reasons: string[];
-  voucher: { status: string; isActive: boolean; printCount: string } | null;
+  voucher: { status: string; isActive: boolean; printCount: number } | null;
   batch: {
     id: string;
     batchCode: string;

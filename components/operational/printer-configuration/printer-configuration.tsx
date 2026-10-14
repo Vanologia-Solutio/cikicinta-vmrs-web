@@ -8,7 +8,7 @@ import { LabelSettingsCard } from "./label-settings-card";
 import { TestPrintControls } from "./test-print-controls";
 
 /** Every test sticker carries this code; it is never a real voucher. */
-const SAMPLE_CODE = "000000000000";
+const SAMPLE_CODE = "00000000000000";
 
 export function PrinterConfiguration() {
   return (

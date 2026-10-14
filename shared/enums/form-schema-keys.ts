@@ -15,6 +15,4 @@ export enum FormSchemaKeys {
   EDIT_VOUCHER_BENEFIT = "edit-voucher-benefit",
   CREATE_VOUCHER_BATCH = "create-voucher-batch",
   EDIT_VOUCHER_BATCH = "edit-voucher-batch",
-  CREATE_SYNC_ROUTE = "create-sync-route",
-  SYNC_SCHEDULE_FORM = "sync-schedule-form",
 }

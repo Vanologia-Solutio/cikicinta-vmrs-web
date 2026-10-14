@@ -136,7 +136,7 @@ export function VoucherRedeem() {
                     <Input
                       id="voucher-redeem-code"
                       className="font-mono"
-                      placeholder="000000000000"
+                      placeholder="00000000000000"
                       inputMode="numeric"
                       autoFocus
                       aria-invalid={fieldState.invalid}

@@ -85,7 +85,7 @@ export function VoucherCheck() {
                     <Input
                       id="voucher-check-code"
                       className="font-mono"
-                      placeholder="000000000000"
+                      placeholder="00000000000000"
                       inputMode="numeric"
                       autoFocus
                       aria-invalid={fieldState.invalid}

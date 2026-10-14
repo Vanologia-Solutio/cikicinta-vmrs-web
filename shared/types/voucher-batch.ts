@@ -1,12 +1,7 @@
 import { BaseEntityWithId } from "./general";
 import { PrintJobStatus } from "./printer-agent";
 
-/**
- * `receiving` only occurs at a site the batch was sent to: the batch has
- * arrived but not all of its vouchers yet.
- */
-export type VoucherBatchStatus =
-  "generating" | "receiving" | "ready" | "failed";
+export type VoucherBatchStatus = "generating" | "ready" | "failed";
 
 interface NamedRef {
   id: string;
@@ -20,8 +15,7 @@ export interface VoucherBatch extends BaseEntityWithId {
   benefitId: string;
   category: NamedRef | null;
   benefit: NamedRef | null;
-  /** Numeric columns arrive as strings. */
-  quantity: string;
+  quantity: number;
   status: VoucherBatchStatus;
   /** Dates are yyyy-MM-dd. */
   validFrom: string;
@@ -29,7 +23,7 @@ export interface VoucherBatch extends BaseEntityWithId {
   notes: string | null;
   isActive: boolean;
   /** Stickers the printer accepted for this batch, reprints included. */
-  printCount: string;
+  printCount: number;
 }
 
 export interface VoucherBatchDetail extends VoucherBatch {
@@ -41,7 +35,7 @@ export interface Voucher extends BaseEntityWithId {
   code: string;
   status: string;
   isActive: boolean;
-  printCount: string;
+  printCount: number;
   lastPrintedAt: string | null;
 }
 
@@ -60,8 +54,8 @@ export interface VoucherPrintLog {
   runSequence: number;
   requestedBy: string | null;
   printerName: string | null;
-  quantityRequested: string;
-  quantityCompleted: string;
+  quantityRequested: number;
+  quantityCompleted: number;
   status: VoucherPrintLogStatus;
   errorMessage: string | null;
   startedAt: string | null;
