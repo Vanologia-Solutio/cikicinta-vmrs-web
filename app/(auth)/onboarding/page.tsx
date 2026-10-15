@@ -32,7 +32,13 @@ import {
 } from "@/shared/schemas/auth";
 import { useAuthStore } from "@/shared/stores/auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircleIcon, SpinnerGapIcon } from "@phosphor-icons/react";
+import {
+  ArrowRightIcon,
+  CompassIcon,
+  ShieldCheckIcon,
+  SpinnerGapIcon,
+  WavesIcon,
+} from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 
@@ -67,17 +73,43 @@ export default function OnboardingPage() {
     <main
       className={cn(
         PAGE_ANIMATE_IN,
-        "flex h-screen items-center justify-center p-4",
+        "mx-auto grid min-h-screen w-full max-w-6xl items-center justify-items-center gap-4 p-4 md:grid-cols-2 md:gap-8 lg:gap-16 lg:p-12",
       )}
     >
-      <Card className="w-full max-w-xl">
-        <CardHeader>
-          <CardTitle className="inline-flex items-center justify-between gap-2 text-lg">
-            <p>
-              Welcome to{" "}
-              <strong className="text-primary">{PROJECT_NAME}</strong>
-            </p>
+      <section className="space-y-4 hidden md:block">
+        <p className="text-muted-foreground text-xs font-medium tracking-[0.3em] uppercase">
+          {PROJECT_NAME}
+        </p>
+        <h1 className="text-primary text-3xl leading-tight font-semibold tracking-tight sm:text-5xl">
+          Get started.
+          <br />
+          Work confidently.
+        </h1>
+        <p className="text-muted-foreground max-w-md">
+          A few quick confirmations keep every operation secure, compliant, and
+          tailored to your role.
+        </p>
+        <p className="text-primary inline-flex items-center gap-1.5 text-sm font-medium">
+          <CompassIcon className="size-5" />
+          Your workspace is almost ready
+        </p>
+      </section>
+
+      <Card className="w-full max-w-xl shadow-lg lg:justify-self-end">
+        <CardHeader className="space-y-2.5">
+          <div className="flex items-start justify-between gap-2">
+            <div className="bg-primary text-primary-foreground flex size-12 items-center justify-center rounded-full shadow-md">
+              <WavesIcon className="size-6" />
+            </div>
             <Badge variant="secondary">Onboarding</Badge>
+          </div>
+          <CardTitle className="space-y-1">
+            <p className="text-muted-foreground text-sm font-medium">
+              Welcome to {PROJECT_NAME}
+            </p>
+            <p className="text-primary text-2xl sm:text-3xl font-semibold tracking-tight">
+              Make yourself at home.
+            </p>
           </CardTitle>
           <CardDescription>
             You&apos;re about to access the system for{" "}
@@ -146,19 +178,24 @@ export default function OnboardingPage() {
               />
             </FieldGroup>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="flex-col gap-4">
             <Button
               className="w-full"
+              size="lg"
               type="submit"
               disabled={isCompletingOnboarding}
             >
+              Get started
               {isCompletingOnboarding ? (
                 <SpinnerGapIcon className="animate-spin" />
               ) : (
-                <CheckCircleIcon />
+                <ArrowRightIcon />
               )}
-              Confirm
             </Button>
+            <p className="text-muted-foreground inline-flex items-center gap-1.5 text-xs">
+              <ShieldCheckIcon className="size-4" />
+              Your access is logged and protected.
+            </p>
           </CardFooter>
         </form>
       </Card>
