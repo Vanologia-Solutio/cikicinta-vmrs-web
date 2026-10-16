@@ -22,7 +22,6 @@ import {
   lastSentJob,
 } from "@/shared/utils/printer-agent";
 import { StopCircleIcon } from "@phosphor-icons/react";
-import { format } from "date-fns";
 import { Fragment, useState } from "react";
 
 /**
