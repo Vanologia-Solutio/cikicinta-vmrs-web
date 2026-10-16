@@ -26,6 +26,10 @@ export interface AgentPrinterStatus {
   state: string;
   queuedJobs: number | null;
   detail?: string;
+  /** Locked after a stop: nothing prints until the printer is calibrated. */
+  needsCalibration: boolean;
+  lockReason: string | null;
+  lockedSince: string | null;
 }
 
 export interface AgentPrintJob {
@@ -39,6 +43,11 @@ export interface AgentPrintJob {
   error?: string;
   retryOf?: string;
   retriedBy?: string;
+  /**
+   * Set when the operator stopped the printer while this job may have been on
+   * it. The job stays `unknown` and is never retried as a whole.
+   */
+  cancelledAt?: string;
   createdAt: string;
   updatedAt: string;
   finishedAt?: string;
@@ -104,6 +113,26 @@ export interface AgentLabelSettings {
 export interface AgentCalibrationResult {
   printerId: string;
   sensor: AgentLabelSettings["sensor"];
+}
+
+export interface AgentStopResult {
+  printerId: string;
+  cancelledJobs: {
+    id: string;
+    status: PrintJobStatus;
+    labelCount: number;
+    /** False for jobs that were still waiting and never sent. */
+    mayHavePrinted: boolean;
+  }[];
+  /** Agent jobs deleted from the Windows queue; null if it could not be cleared. */
+  removedJobs: number | null;
+  /** Jobs from other programs, left in the Windows queue. */
+  otherJobs: number | null;
+  /** Whether the reset that empties the printer's memory was sent. */
+  bufferReset: boolean;
+  powerCycleAdvised: boolean;
+  problems: string[];
+  needsCalibration: true;
 }
 
 export interface AgentTestPrintResult {

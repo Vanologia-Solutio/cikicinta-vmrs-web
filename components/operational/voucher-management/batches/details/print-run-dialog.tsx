@@ -34,6 +34,7 @@ import { VoucherPrintRun } from "@/shared/types/voucher-batch";
 import { formatSeparator } from "@/shared/utils/formatter";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SpinnerGapIcon } from "@phosphor-icons/react";
+import { Fragment } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import {
   LOG_STATUS_PRESENTATION,
@@ -134,7 +135,7 @@ function PrintRunContent({
   };
 
   return (
-    <>
+    <Fragment>
       <DialogHeader>
         <DialogTitle className="flex items-center gap-2">
           Print run
@@ -285,6 +286,6 @@ function PrintRunContent({
           </DialogFooter>
         </form>
       )}
-    </>
+    </Fragment>
   );
 }

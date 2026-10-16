@@ -9,7 +9,7 @@ import type { AppColumnDef } from "@/lib/table";
 import { VoucherPrintRun } from "@/shared/types/voucher-batch";
 import { formatSeparator } from "@/shared/utils/formatter";
 import { format } from "date-fns";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { PrintRunDialog } from "./print-run-dialog";
 import { RUN_STATUS_PRESENTATION } from "./print-status";
 
@@ -95,7 +95,7 @@ export function BatchPrintRunsTable({ batchId }: { batchId: string }) {
   );
 
   return (
-    <>
+    <Fragment>
       <PaginatedDataTable<VoucherPrintRun>
         columns={columns}
         data={data?.data ?? []}
@@ -111,6 +111,6 @@ export function BatchPrintRunsTable({ batchId }: { batchId: string }) {
         run={openRun}
         onClose={() => setOpenRunId(null)}
       />
-    </>
+    </Fragment>
   );
 }

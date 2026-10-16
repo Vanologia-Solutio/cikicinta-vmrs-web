@@ -43,6 +43,7 @@ import {
 } from "@/shared/schemas/printer-agent";
 import {
   AgentPrintJob,
+  AgentStopResult,
   AgentVoucher,
   PrintJobRun,
 } from "@/shared/types/printer-agent";
@@ -60,7 +61,9 @@ import {
 import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 import { Fragment, ReactNode, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { CalibrationLockAlert } from "./calibration-lock-alert";
 import { PrintJobList } from "./print-job-list";
+import { StopPrinterButton } from "./stop-printer-button";
 
 interface PrinterAgentPanelProps {
   /**
@@ -114,6 +117,7 @@ export function PrinterAgentPanel({
   const [reprintOpen, setReprintOpen] = useState(false);
   const [riskyRetry, setRiskyRetry] = useState<AgentPrintJob | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [lastStop, setLastStop] = useState<AgentStopResult>();
 
   // The agent caps the labels in one job, so a large selection goes out as
   // several consecutive jobs.
@@ -166,6 +170,8 @@ export function PrinterAgentPanel({
   }));
 
   const printerStatus = printerAgentQueries.usePrinterStatus(printerId, paired);
+  // Set by a stop; the agent refuses to print until the printer is calibrated.
+  const locked = printerStatus.data?.needsCalibration === true;
   const jobs = printerAgentQueries.useJobs(paired && printsVouchers);
   // The layout is the same for every job, so checking the first is enough.
   const preview = printerAgentQueries.usePreview(jobChunks[0] ?? [], paired);
@@ -387,7 +393,7 @@ export function PrinterAgentPanel({
 
         {paired && (
           <Fragment>
-            <div className="flex flex-wrap items-end gap-3">
+            <div className="flex flex-wrap items-end gap-2">
               <Field className="w-auto">
                 <FieldLabel htmlFor="printer-agent-printer">Printer</FieldLabel>
                 {/* Base UI resolves the trigger label from `items`. */}
@@ -424,7 +430,16 @@ export function PrinterAgentPanel({
                 <Button
                   className={renderPrinterActions ? undefined : "ml-auto"}
                   disabled={
-                    count === 0 || !printerId || submitting || !!previewError
+                    count === 0 ||
+                    !printerId ||
+                    submitting ||
+                    !!previewError ||
+                    locked
+                  }
+                  title={
+                    locked
+                      ? "Calibrate the printer before printing again."
+                      : undefined
                   }
                   onClick={() => submit(false)}
                 >
@@ -432,17 +447,27 @@ export function PrinterAgentPanel({
                   {submitting ? "Queueing..." : `Print ${stickers}`}
                 </Button>
               )}
-              <Button
-                variant="ghost"
-                size="sm"
-                className={
-                  printsVouchers || renderPrinterActions ? undefined : "ml-auto"
-                }
-                onClick={() => changeToken(null)}
-              >
+              <StopPrinterButton
+                printerId={printerId}
+                onStopped={(result) => {
+                  setLastStop(result);
+                  notify.success("Printer stopped", {
+                    description: "Follow the steps shown above the job list.",
+                  });
+                }}
+              />
+              <Button variant="ghost" onClick={() => changeToken(null)}>
                 Unpair
               </Button>
             </div>
+
+            {printerId && locked && (
+              <CalibrationLockAlert
+                printerId={printerId}
+                lockedSince={printerStatus.data?.lockedSince ?? null}
+                stop={lastStop?.printerId === printerId ? lastStop : undefined}
+              />
+            )}
 
             {previewError && (
               <Alert variant="destructive">

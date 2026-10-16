@@ -2,7 +2,7 @@
 
 import { PageHeader } from "@/components/general/page-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { CreateVoucherBenefitDialog } from "./benefits/create-voucher-benefit-dialog";
 import { VoucherBenefitsTable } from "./benefits/voucher-benefits-table";
 import { CreateVoucherCategoryDialog } from "./categories/create-voucher-category-dialog";
@@ -14,7 +14,7 @@ export function CategoriesAndBenefitsTabs() {
   const [tab, setTab] = useState<TabValue>("categories");
 
   return (
-    <>
+    <Fragment>
       <PageHeader
         title="Categories & Benefits"
         description="Manage voucher categories and the benefits under them."
@@ -38,6 +38,6 @@ export function CategoriesAndBenefitsTabs() {
           <VoucherBenefitsTable />
         </TabsContent>
       </Tabs>
-    </>
+    </Fragment>
   );
 }

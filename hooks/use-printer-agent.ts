@@ -95,11 +95,43 @@ export const printerAgentQueries = {
       ...ON_DEMAND,
     }),
 
-  useCalibratePrinter: () =>
-    useMutation({
+  // Calibrating lifts a lock left by a stop, so the status is re-read.
+  useCalibratePrinter: () => {
+    const queryClient = useQueryClient();
+    return useMutation({
       mutationFn: (printerId: string) =>
         printerAgentService.calibratePrinter(printerId),
-    }),
+      onSettled: (_data, _error, printerId) =>
+        queryClient.invalidateQueries({
+          queryKey: PRINTER_AGENT_QUERY_KEYS.printerStatus(printerId),
+        }),
+    });
+  },
+
+  useConfirmCalibration: () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+      mutationFn: (printerId: string) =>
+        printerAgentService.confirmCalibration(printerId),
+      onSettled: (_data, _error, printerId) =>
+        queryClient.invalidateQueries({
+          queryKey: PRINTER_AGENT_QUERY_KEYS.printerStatus(printerId),
+        }),
+    });
+  },
+
+  useStopPrinter: () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+      mutationFn: (input: { printerId: string; jobId?: string }) =>
+        printerAgentService.stopPrinter(input.printerId, input.jobId),
+      // Jobs, printer status and the Windows queue count all change.
+      onSettled: () =>
+        queryClient.invalidateQueries({
+          queryKey: PRINTER_AGENT_QUERY_KEYS.all,
+        }),
+    });
+  },
 
   useTestPrint: () =>
     useMutation({

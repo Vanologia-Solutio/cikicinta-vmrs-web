@@ -29,6 +29,9 @@ export function TestPrintControls({ printerId }: { printerId?: string }) {
   const [rows, setRows] = useState("1");
   const { mutateAsync: testPrint, isPending } =
     printerAgentQueries.useTestPrint();
+  // After a stop the agent refuses test prints until the printer is calibrated.
+  const status = printerAgentQueries.usePrinterStatus(printerId, !!printerId);
+  const locked = status.data?.needsCalibration === true;
 
   const handlePrint = async () => {
     if (!printerId) return;
@@ -49,7 +52,7 @@ export function TestPrintControls({ printerId }: { printerId?: string }) {
   };
 
   return (
-    <>
+    <div className="flex items-center gap-2">
       <Select
         items={ROW_ITEMS}
         value={rows}
@@ -68,10 +71,14 @@ export function TestPrintControls({ printerId }: { printerId?: string }) {
           ))}
         </SelectContent>
       </Select>
-      <Button disabled={!printerId || isPending} onClick={handlePrint}>
+      <Button
+        disabled={!printerId || isPending || locked}
+        title={locked ? "Calibrate the printer first." : undefined}
+        onClick={handlePrint}
+      >
         <PrinterIcon />
         {isPending ? "Sending..." : "Print test"}
       </Button>
-    </>
+    </div>
   );
 }

@@ -11,7 +11,7 @@ import {
 import { AgentPrintJob } from "@/shared/types/printer-agent";
 import {
   canRetryJob,
-  JOB_STATUS_PRESENTATION,
+  jobStatusPresentation,
 } from "@/shared/utils/printer-agent";
 import { ArrowClockwiseIcon } from "@phosphor-icons/react";
 import { format } from "date-fns";
@@ -45,7 +45,7 @@ export function PrintJobList({
       </TableHeader>
       <TableBody>
         {jobs.map((job) => {
-          const status = JOB_STATUS_PRESENTATION[job.status];
+          const status = jobStatusPresentation(job);
           return (
             <TableRow key={job.id} data-job-status={job.status}>
               <TableCell className="text-muted-foreground">

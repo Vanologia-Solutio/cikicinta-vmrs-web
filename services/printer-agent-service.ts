@@ -9,6 +9,7 @@ import {
   AgentPrinterStatus,
   AgentPrintJob,
   AgentResponse,
+  AgentStopResult,
   AgentTestPrintResult,
   AgentVoucher,
   CreateAgentPrintJobDto,
@@ -101,6 +102,30 @@ export class PrinterAgentService {
   calibratePrinter(printerId: string): Promise<AgentCalibrationResult> {
     return this.unwrap(
       this.http.post(`/printers/${encodeURIComponent(printerId)}/calibrate`),
+    );
+  }
+
+  /**
+   * Stops printing (labels ran out): cancels the agent's jobs, empties the
+   * Windows queue, resets the printer and locks it until it is calibrated.
+   * `jobId` names an earlier job that is probably still on the printer.
+   */
+  stopPrinter(printerId: string, jobId?: string): Promise<AgentStopResult> {
+    return this.unwrap(
+      this.http.post(
+        `/printers/${encodeURIComponent(printerId)}/stop`,
+        jobId ? { jobId } : {},
+      ),
+    );
+  }
+
+  /** Lifts the lock after the operator calibrated on the printer itself. */
+  confirmCalibration(printerId: string): Promise<{ printerId: string }> {
+    return this.unwrap(
+      this.http.post(
+        `/printers/${encodeURIComponent(printerId)}/calibration-confirmed`,
+        { confirm: true },
+      ),
     );
   }
 

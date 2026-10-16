@@ -27,7 +27,7 @@ import {
   toApiDate,
 } from "@/shared/schemas/voucher-batch";
 import { PlusIcon } from "@phosphor-icons/react";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useMemo, useRef, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 
 export function CreateVoucherBatchDialog() {
@@ -130,7 +130,7 @@ export function CreateVoucherBatchDialog() {
         {isFormSchemaLoading ? (
           <DynamicFormSkeleton rows={4} cols={2} />
         ) : (
-          <>
+          <Fragment>
             <DynamicForm<CreateVoucherBatchFormValues>
               key={String(open)}
               formId={FormSchemaKeys.CREATE_VOUCHER_BATCH}
@@ -150,7 +150,7 @@ export function CreateVoucherBatchDialog() {
                 onChange={handleCategoryChange}
               />
             )}
-          </>
+          </Fragment>
         )}
       </DialogContent>
     </Dialog>

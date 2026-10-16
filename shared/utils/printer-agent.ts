@@ -48,12 +48,44 @@ export const JOB_STATUS_PRESENTATION: Record<
   },
 };
 
+const STOPPED_PRESENTATION: JobStatusPresentation = {
+  label: "Stopped - check stickers",
+  variant: "destructive",
+  description:
+    "Printing was stopped part-way. Check which stickers printed and print only the missing vouchers again.",
+};
+
+/** A stopped job is still `unknown` to the agent but is shown as stopped. */
+export const jobStatusPresentation = (
+  job: AgentPrintJob,
+): JobStatusPresentation =>
+  job.cancelledAt ? STOPPED_PRESENTATION : JOB_STATUS_PRESENTATION[job.status];
+
 export const isJobActive = (job: AgentPrintJob) =>
   job.status === "queued" || job.status === "processing";
 
-/** Only jobs that did not (or may not) print, and were not retried already. */
+/**
+ * Only jobs that did not (or may not) print, and were not retried already. A
+ * stopped job is never retried whole: part of it may already be on stickers.
+ */
 export const canRetryJob = (job: AgentPrintJob) =>
-  (job.status === "failed" || job.status === "unknown") && !job.retriedBy;
+  (job.status === "failed" || job.status === "unknown") &&
+  !job.retriedBy &&
+  !job.cancelledAt;
+
+/**
+ * The job most likely still in the printer's memory when the labels ran out:
+ * the newest one that was sent (or may have been) and not already stopped.
+ */
+export const lastSentJob = (jobs: AgentPrintJob[], printerId: string) =>
+  jobs
+    .filter(
+      (job) =>
+        job.printerId === printerId &&
+        !job.cancelledAt &&
+        (job.status === "submitted" || job.status === "unknown"),
+    )
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
 
 /** Retrying these could print duplicates, so the operator must confirm. */
 export const retryNeedsConfirmation = (job: AgentPrintJob) =>
@@ -74,6 +106,10 @@ const TROUBLESHOOTING: Record<string, string> = {
     "The barcode does not fit the label with the agent's current settings.",
   printer_busy:
     "A print job is still running. Wait for it to finish, then try again.",
+  calibration_required:
+    "Printing was stopped on this printer. Load the labels and calibrate the gap sensor before printing again.",
+  cancelled_job:
+    "This job was stopped part-way. Check which stickers printed, mark the job, and print only the missing vouchers again.",
   calibration_not_supported:
     "The agent is set to continuous media (no sensor), so there is nothing to calibrate.",
 };

@@ -27,10 +27,10 @@ export function PrinterConfiguration() {
       {/* No vouchers are printed from this page, only the printer is managed. */}
       <PrinterAgentPanel
         renderPrinterActions={(printerId) => (
-          <>
+          <div className="flex items-center gap-2">
             <TestPrintControls printerId={printerId} />
             <CalibratePrinterButton printerId={printerId} />
-          </>
+          </div>
         )}
       />
 

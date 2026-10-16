@@ -16,7 +16,7 @@ import { notify } from "@/lib/toast";
 import { PrinterAgentError } from "@/services/printer-agent-service";
 import { agentTroubleshooting } from "@/shared/utils/printer-agent";
 import { CrosshairIcon } from "@phosphor-icons/react";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 
 /**
  * Runs the printer's own gap detection through the agent, the same thing
@@ -48,7 +48,7 @@ export function CalibratePrinterButton({ printerId }: { printerId?: string }) {
   };
 
   return (
-    <>
+    <Fragment>
       <Button
         variant="outline"
         disabled={!printerId || isPending}
@@ -76,6 +76,6 @@ export function CalibratePrinterButton({ printerId }: { printerId?: string }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </Fragment>
   );
 }
