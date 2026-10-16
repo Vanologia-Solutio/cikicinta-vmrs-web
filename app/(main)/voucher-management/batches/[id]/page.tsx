@@ -1,4 +1,4 @@
-import { VoucherBatchDetails } from "@/components/operational/voucher-management/batches/details/voucher-batch-details";
+import { VoucherBatchDetails } from "@/components/voucher-management/batches/details/voucher-batch-details";
 import { PAGE_ANIMATE_IN } from "@/shared/constants/common";
 
 export default async function VoucherBatchDetailsPage({

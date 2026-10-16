@@ -14,7 +14,7 @@ import Link from "next/link";
 import { VOUCHER_BATCH_TABLE_ACTIONS } from "./voucher-batch-table-actions";
 import { VoucherBatchStatusBadge } from "./voucher-batch-status-badge";
 
-export const BATCHES_PATH = "/operational/voucher-management/batches";
+export const BATCHES_PATH = "/voucher-management/batches";
 
 export const formatBatchDate = (date: string | null) =>
   date ? format(parseISO(date), "dd MMM yyyy") : "No expiry";

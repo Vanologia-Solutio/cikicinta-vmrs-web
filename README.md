@@ -78,14 +78,16 @@ cikicinta-vmrs-web/
 │   ├── (auth)/            # login, logout, onboarding, callback
 │   ├── (main)/            # authenticated pages, sidebar layout
 │   │   ├── dashboard/
-│   │   ├── operational/   # voucher management, printer configuration
+│   │   ├── voucher-management/  # batches, categories & benefits, redemption
+│   │   ├── operational/   # printer configuration
 │   │   └── platform/      # access management, system configuration, playground
 │   └── (redirection)/     # forbidden, unauthorized
 ├── components/
 │   ├── ui/                # shadcn/ui primitives
 │   ├── form/              # DynamicForm and form inputs
 │   ├── general/           # tables, dialogs, page header, printer-agent panel, icons
-│   ├── operational/       # voucher batches, categories & benefits, redeem, printer config
+│   ├── voucher-management/  # voucher batches, categories & benefits, redemption
+│   ├── operational/       # printer configuration
 │   └── platform/          # users, roles, responsibilities, tenants, modules, menus, playground
 ├── hooks/                 # TanStack Query hooks per resource (use-voucher-batch.ts, …)
 ├── services/              # API calls per resource (voucher-batch-service.ts, …)
@@ -105,9 +107,9 @@ cikicinta-vmrs-web/
 | Path | Page |
 |------|------|
 | `/dashboard` | Home (always allowed after login) |
-| `/operational/voucher-management/batches` | Voucher batches; `[id]` shows the vouchers, printing and print history |
-| `/operational/voucher-management/categories-and-benefits` | Voucher categories and their benefits |
-| `/operational/voucher-management/redeem` | Scan or type a code to check and redeem it, plus redemption history |
+| `/voucher-management/batches` | Voucher batches; `[id]` shows the vouchers, printing and print history |
+| `/voucher-management/categories-and-benefits` | Voucher categories and their benefits |
+| `/voucher-management/redemption` | Scan or type a code to check and redeem it, plus redemption history |
 | `/operational/printer-configuration` | Pair with the printer agent, calibrate, test print |
 | `/platform/access-management/{users,roles,responsibilities}` | Users, roles, and which menus each tenant + role can open |
 | `/platform/system-configuration/{tenants,modules,menus}` | Tenants, sidebar modules and menus |
