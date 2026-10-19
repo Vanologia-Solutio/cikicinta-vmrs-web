@@ -78,7 +78,7 @@ cikicinta-vmrs-web/
 │   ├── (auth)/            # login, logout, onboarding, callback
 │   ├── (main)/            # authenticated pages, sidebar layout
 │   │   ├── dashboard/
-│   │   ├── voucher-management/  # batches, categories & benefits, redemption
+│   │   ├── voucher-management/  # batches, categories & benefits, redemption, history
 │   │   ├── operational/   # printer configuration
 │   │   └── platform/      # access management, system configuration, playground
 │   └── (redirection)/     # forbidden, unauthorized
@@ -86,7 +86,7 @@ cikicinta-vmrs-web/
 │   ├── ui/                # shadcn/ui primitives
 │   ├── form/              # DynamicForm and form inputs
 │   ├── general/           # tables, dialogs, page header, printer-agent panel, icons
-│   ├── voucher-management/  # voucher batches, categories & benefits, redemption
+│   ├── voucher-management/  # voucher batches, categories & benefits, redemption, history
 │   ├── operational/       # printer configuration
 │   └── platform/          # users, roles, responsibilities, tenants, modules, menus, playground
 ├── hooks/                 # TanStack Query hooks per resource (use-voucher-batch.ts, …)
@@ -110,6 +110,7 @@ cikicinta-vmrs-web/
 | `/voucher-management/batches` | Voucher batches; `[id]` shows the vouchers, printing and print history |
 | `/voucher-management/categories-and-benefits` | Voucher categories and their benefits |
 | `/voucher-management/redemption` | Scan or type a code to check and redeem it, plus redemption history |
+| `/voucher-management/history` | Redemption history; clicking a code shows when it was printed, its category, benefit, validity and redemption |
 | `/operational/printer-configuration` | Pair with the printer agent, calibrate, test print |
 | `/platform/access-management/{users,roles,responsibilities}` | Users, roles, and which menus each tenant + role can open |
 | `/platform/system-configuration/{tenants,modules,menus}` | Tenants, sidebar modules and menus |

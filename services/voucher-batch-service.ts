@@ -14,8 +14,8 @@ import { PaginationQuery } from "@/shared/types/general";
 import { AgentVoucher } from "@/shared/types/printer-agent";
 import {
   Voucher,
-  VoucherBatch,
   VoucherBatchDetail,
+  VoucherBatchListItem,
   VoucherPrintedFilter,
   VoucherPrintLog,
   VoucherPrintRun,
@@ -30,7 +30,7 @@ class VoucherBatchService {
 
   async getAll(
     query: PaginationQuery,
-  ): Promise<PaginatedResponse<VoucherBatch>> {
+  ): Promise<PaginatedResponse<VoucherBatchListItem>> {
     const res = await this.httpClient.get(batches.getAll, { params: query });
     return res.data;
   }

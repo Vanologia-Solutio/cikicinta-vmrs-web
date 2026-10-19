@@ -4,6 +4,7 @@ import { ApiResponse, PaginatedResponse } from "@/shared/types/api-response";
 import { PaginationQuery } from "@/shared/types/general";
 import {
   VoucherRedemption,
+  VoucherRedemptionDetail,
   VoucherRedemptionResult,
 } from "@/shared/types/voucher-redemption";
 import { AxiosInstance } from "axios";
@@ -23,6 +24,13 @@ class VoucherRedemptionService {
     const res = await this.httpClient.get(ENDPOINTS.vouchers.redemptions, {
       params: query,
     });
+    return res.data;
+  }
+
+  async getById(id: string): Promise<ApiResponse<VoucherRedemptionDetail>> {
+    const res = await this.httpClient.get(
+      ENDPOINTS.vouchers.redemptionById.replace("{id}", id),
+    );
     return res.data;
   }
 }

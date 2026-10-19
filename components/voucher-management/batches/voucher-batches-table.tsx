@@ -1,16 +1,17 @@
 "use client";
 
 import { BooleanBadge } from "@/components/general/boolean-badge";
+import { CopyText } from "@/components/general/copy-text";
 import { EntityTableActions } from "@/components/general/entity-table-actions";
 import { PaginatedDataTable } from "@/components/general/paginated-data-table";
 import { SearchBar } from "@/components/general/search-bar";
+import { Progress } from "@/components/ui/progress";
 import { usePagination } from "@/hooks/use-pagination";
 import { voucherBatchQueries } from "@/hooks/use-voucher-batch";
 import type { AppColumnDef } from "@/lib/table";
-import { VoucherBatch } from "@/shared/types/voucher-batch";
+import { VoucherBatchListItem } from "@/shared/types/voucher-batch";
 import { formatSeparator } from "@/shared/utils/formatter";
 import { format, parseISO } from "date-fns";
-import Link from "next/link";
 import { VOUCHER_BATCH_TABLE_ACTIONS } from "./voucher-batch-table-actions";
 import { VoucherBatchStatusBadge } from "./voucher-batch-status-badge";
 
@@ -19,18 +20,44 @@ export const BATCHES_PATH = "/voucher-management/batches";
 export const formatBatchDate = (date: string | null) =>
   date ? format(parseISO(date), "dd MMM yyyy") : "No expiry";
 
-const columns: AppColumnDef<VoucherBatch>[] = [
+/** "count / total (n%)" over a progress bar. */
+function CountProgress({
+  count,
+  total,
+  label,
+}: {
+  count: number;
+  total: number;
+  label: string;
+}) {
+  // Floored, so 100% shows only once the whole total is reached.
+  const percent = total > 0 ? Math.floor((count / total) * 100) : 0;
+  return (
+    <Progress
+      value={count}
+      max={Math.max(total, 1)}
+      className="gap-1"
+      aria-label={label}
+    >
+      <span className="w-full text-right text-xs tabular-nums">
+        {formatSeparator(count)} / {formatSeparator(total)}{" "}
+        <span className="text-muted-foreground">({percent}%)</span>
+      </span>
+    </Progress>
+  );
+}
+
+const columns: AppColumnDef<VoucherBatchListItem>[] = [
   {
     accessorKey: "batchCode",
     header: "Batch",
     size: 220,
     cell: ({ row }) => (
-      <Link
+      <CopyText
+        text={row.original.batchCode}
         href={`${BATCHES_PATH}/${row.original.id}`}
-        className="font-mono underline-offset-4 hover:underline"
-      >
-        {row.original.batchCode}
-      </Link>
+        textClassName="font-mono"
+      />
     ),
   },
   {
@@ -46,32 +73,43 @@ const columns: AppColumnDef<VoucherBatch>[] = [
     cell: ({ row }) => row.original.benefit?.name ?? "-",
   },
   {
-    accessorKey: "quantity",
-    header: "Quantity",
-    size: 110,
-    meta: { align: "right" },
-    cell: ({ row }) => formatSeparator(row.original.quantity),
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    size: 150,
-    cell: ({ row }) => <VoucherBatchStatusBadge status={row.original.status} />,
-  },
-  {
     id: "validity",
     header: "Validity",
     size: 220,
     accessorFn: (row) => row.validFrom,
     cell: ({ row }) =>
-      `${formatBatchDate(row.original.validFrom)} – ${formatBatchDate(row.original.expiredAt)}`,
+      `${formatBatchDate(row.original.validFrom)} - ${formatBatchDate(row.original.expiredAt)}`,
   },
   {
-    accessorKey: "printCount",
-    header: "Stickers printed",
-    size: 140,
-    meta: { align: "right" },
-    cell: ({ row }) => formatSeparator(row.original.printCount),
+    accessorKey: "printedCount",
+    header: "Printed / Quantity (%)",
+    size: 180,
+    cell: ({ row }) => (
+      <CountProgress
+        count={row.original.printedCount}
+        total={row.original.quantity}
+        label="Vouchers printed"
+      />
+    ),
+  },
+  {
+    accessorKey: "redeemedCount",
+    header: "Redeemed / Printed (%)",
+    size: 180,
+    // Only a printed sticker can be redeemed, so printed is the whole.
+    cell: ({ row }) => (
+      <CountProgress
+        count={row.original.redeemedCount}
+        total={row.original.printedCount}
+        label="Printed vouchers redeemed"
+      />
+    ),
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    size: 100,
+    cell: ({ row }) => <VoucherBatchStatusBadge status={row.original.status} />,
   },
   {
     accessorKey: "isActive",
@@ -82,7 +120,7 @@ const columns: AppColumnDef<VoucherBatch>[] = [
   {
     id: "actions",
     header: "Actions",
-    size: 140,
+    size: 100,
     cell: ({ row }) => (
       <EntityTableActions
         actions={VOUCHER_BATCH_TABLE_ACTIONS}
@@ -106,7 +144,7 @@ export function VoucherBatchesTable() {
         setKeywordInput={setKeywordInput}
         totalRecords={data?.pagination?.totalRecords ?? 0}
       />
-      <PaginatedDataTable<VoucherBatch>
+      <PaginatedDataTable<VoucherBatchListItem>
         columns={columns}
         data={data?.data ?? []}
         // Background polling while a batch generates must not blank the table.

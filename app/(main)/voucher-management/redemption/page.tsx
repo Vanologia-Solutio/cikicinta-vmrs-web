@@ -1,11 +1,11 @@
 import { PageHeader } from "@/components/general/page-header";
-import { RedemptionHistoryTable } from "@/components/voucher-management/redemption/redemption-history-table";
+import { RedemptionHistoryTable } from "@/components/voucher-management/history/redemption-history-table";
 import { VoucherRedeem } from "@/components/voucher-management/redemption/voucher-redeem";
 import { PAGE_ANIMATE_IN } from "@/shared/constants/common";
 
 export default function VoucherRedemptionPage() {
   return (
-    <main className={`${PAGE_ANIMATE_IN} flex flex-col gap-6`}>
+    <main className={PAGE_ANIMATE_IN}>
       <div>
         <PageHeader
           title="Voucher Redemption"
@@ -13,7 +13,10 @@ export default function VoucherRedemptionPage() {
         />
         <VoucherRedeem />
       </div>
-      <RedemptionHistoryTable />
+      <section>
+        <h2 className="mb-2 text-lg font-semibold">Redemption history</h2>
+        <RedemptionHistoryTable />
+      </section>
     </main>
   );
 }

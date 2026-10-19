@@ -6,7 +6,7 @@ import {
 } from "@/shared/dtos/voucher-category";
 import { ApiResponse, PaginatedResponse } from "@/shared/types/api-response";
 import { PaginationQuery } from "@/shared/types/general";
-import { VoucherCategory } from "@/shared/types/voucher-category";
+import { VoucherCategoryListItem } from "@/shared/types/voucher-category";
 import { AxiosInstance } from "axios";
 
 class VoucherCategoryService {
@@ -14,7 +14,7 @@ class VoucherCategoryService {
 
   async getAll(
     query: PaginationQuery,
-  ): Promise<PaginatedResponse<VoucherCategory>> {
+  ): Promise<PaginatedResponse<VoucherCategoryListItem>> {
     const res = await this.httpClient.get(
       ENDPOINTS.vouchers.categories.getAll,
       {

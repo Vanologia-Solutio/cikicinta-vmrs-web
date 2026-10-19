@@ -10,7 +10,13 @@ export interface VoucherCheckResult {
   eligible: boolean;
   /** Why the voucher is not eligible; empty when it is. */
   reasons: string[];
-  voucher: { status: string; isActive: boolean; printCount: number } | null;
+  voucher: {
+    status: string;
+    isActive: boolean;
+    printCount: number;
+    /** When the sticker was last printed; null if it never was. */
+    lastPrintedAt: string | null;
+  } | null;
   batch: {
     id: string;
     batchCode: string;

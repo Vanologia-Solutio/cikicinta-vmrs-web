@@ -39,10 +39,9 @@ interface RedeemFormValues {
 
 /**
  * Redeeming is two steps on purpose, because it cannot be undone: a scan only
- * looks the voucher up, and the operator then confirms. The code field keeps
- * the focus throughout, so the confirmation is Enter on the empty field (or
- * the button) and a scanner can never confirm by accident: a scan always
- * types a code first, which starts a new lookup instead.
+ * looks the voucher up, and the operator then confirms with the Redeem
+ * button. Submitting the code form only ever looks a voucher up, so neither
+ * a scanner's Enter nor the Look up button can redeem by accident.
  */
 export function VoucherRedeem() {
   const [pending, setPending] = useState<VoucherCheckResult | null>(null);
@@ -105,7 +104,6 @@ export function VoucherRedeem() {
     if (isBusy) return;
     const scanned = code.trim();
     if (scanned) return lookUp(scanned);
-    if (canConfirm) return confirm();
     form.setError("code", { message: "Scan or enter a voucher code" });
   };
 
@@ -115,13 +113,13 @@ export function VoucherRedeem() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="space-y-4 mb-4">
       <Card>
         <CardHeader>
           <CardTitle>Voucher code</CardTitle>
           <CardDescription>
-            Scan the sticker’s barcode, or type its code and press Enter. Check
-            the details, then confirm to redeem.
+            Scan the sticker&apos;s barcode, or type its code and press Enter.
+            Check the details, then confirm to redeem.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -149,7 +147,7 @@ export function VoucherRedeem() {
                   </div>
                   <FieldDescription>
                     {pending?.eligible
-                      ? "Press Enter on the empty field to redeem this voucher, or scan another to replace it."
+                      ? "Press Redeem voucher to confirm, or scan another to replace it."
                       : "Nothing is redeemed until you confirm."}
                   </FieldDescription>
                   {fieldState.error && (
@@ -163,7 +161,7 @@ export function VoucherRedeem() {
       </Card>
 
       {redeemed && (
-        <Alert>
+        <Alert variant="success">
           <CheckCircleIcon />
           <AlertTitle>Redeemed {redeemed.code}</AlertTitle>
           <AlertDescription>

@@ -13,7 +13,7 @@ const SAMPLE_CODE = "00000000000000";
 export function PrinterConfiguration() {
   return (
     <div className="space-y-4">
-      <Alert className="border-amber-200 bg-amber-50 text-amber-900">
+      <Alert variant="warning">
         <BarcodeIcon />
         <AlertTitle>Test prints use a sample code</AlertTitle>
         <AlertDescription>

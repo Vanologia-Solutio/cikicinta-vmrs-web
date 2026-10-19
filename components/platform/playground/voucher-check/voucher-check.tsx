@@ -69,7 +69,7 @@ export function VoucherCheck() {
         <CardHeader>
           <CardTitle>Voucher code</CardTitle>
           <CardDescription>
-            Scan the sticker’s barcode, or type its code and press Enter.
+            Scan the sticker&apos;s barcode, or type its code and press Enter.
           </CardDescription>
         </CardHeader>
         <CardContent>

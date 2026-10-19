@@ -6,11 +6,12 @@ import { SearchBar } from "@/components/general/search-bar";
 import { usePagination } from "@/hooks/use-pagination";
 import { voucherBenefitQueries } from "@/hooks/use-voucher-benefit";
 import type { AppColumnDef } from "@/lib/table";
-import { VoucherBenefit } from "@/shared/types/voucher-benefit";
+import { VoucherBenefitListItem } from "@/shared/types/voucher-benefit";
+import { formatSeparator } from "@/shared/utils/formatter";
 import { BooleanBadge } from "@/components/general/boolean-badge";
 import { VOUCHER_BENEFIT_TABLE_ACTIONS } from "./voucher-benefit-table-actions";
 
-const columns: AppColumnDef<VoucherBenefit>[] = [
+const columns: AppColumnDef<VoucherBenefitListItem>[] = [
   {
     accessorKey: "code",
     header: "Code",
@@ -30,6 +31,20 @@ const columns: AppColumnDef<VoucherBenefit>[] = [
     accessorKey: "description",
     header: "Description",
     cell: ({ row }) => row.original.description || "-",
+  },
+  {
+    accessorKey: "printedCount",
+    header: "Total printed",
+    size: 120,
+    meta: { align: "right" },
+    cell: ({ row }) => formatSeparator(row.original.printedCount),
+  },
+  {
+    accessorKey: "redeemedCount",
+    header: "Total redeemed",
+    size: 130,
+    meta: { align: "right" },
+    cell: ({ row }) => formatSeparator(row.original.redeemedCount),
   },
   {
     accessorKey: "isActive",
@@ -65,7 +80,7 @@ export function VoucherBenefitsTable() {
         setKeywordInput={setKeywordInput}
         totalRecords={data?.pagination?.totalRecords ?? 0}
       />
-      <PaginatedDataTable<VoucherBenefit>
+      <PaginatedDataTable<VoucherBenefitListItem>
         columns={columns}
         data={data?.data ?? []}
         states={{ isLoading: isLoading || isFetching }}

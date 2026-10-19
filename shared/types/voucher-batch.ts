@@ -1,5 +1,6 @@
 import { BaseEntityWithId } from "./general";
 import { PrintJobStatus } from "./printer-agent";
+import { VoucherUsageCounts } from "./voucher-usage";
 
 export type VoucherBatchStatus = "generating" | "ready" | "failed";
 
@@ -25,6 +26,10 @@ export interface VoucherBatch extends BaseEntityWithId {
   /** Stickers the printer accepted for this batch, reprints included. */
   printCount: number;
 }
+
+/** A batches-list row, with how far its vouchers have got. */
+export interface VoucherBatchListItem
+  extends VoucherBatch, VoucherUsageCounts {}
 
 export interface VoucherBatchDetail extends VoucherBatch {
   /** Vouchers generated so far; equals quantity once the batch is ready. */

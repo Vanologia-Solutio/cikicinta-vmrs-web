@@ -64,7 +64,11 @@ const columns: AppColumnDef<Voucher>[] = [
     header: "Status",
     size: 130,
     cell: ({ row }) => (
-      <Badge variant="outline">{formatTag(row.original.status)}</Badge>
+      <Badge
+        variant={row.original.status === "redeemed" ? "default" : "outline"}
+      >
+        {formatTag(row.original.status)}
+      </Badge>
     ),
   },
   {

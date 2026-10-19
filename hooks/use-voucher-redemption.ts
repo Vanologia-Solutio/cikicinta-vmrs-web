@@ -13,6 +13,8 @@ const VOUCHER_REDEMPTION_QUERY_KEYS = {
       query.pageSize,
       query.keyword,
     ] as const,
+  details: (id: string) =>
+    [...VOUCHER_REDEMPTION_QUERY_KEYS.all, "details", id] as const,
 } as const;
 
 export const voucherRedemptionQueries = {
@@ -22,6 +24,13 @@ export const voucherRedemptionQueries = {
     useQuery({
       queryKey: voucherRedemptionQueries.keys.list(query),
       queryFn: () => voucherRedemptionService.getAll(query),
+    }),
+
+  useDetails: (id: string | null) =>
+    useQuery({
+      queryKey: voucherRedemptionQueries.keys.details(id ?? ""),
+      queryFn: () => voucherRedemptionService.getById(id!),
+      enabled: !!id,
     }),
 
   useRedeem: () => {
