@@ -20,6 +20,22 @@ export interface VoucherRedemption {
   benefit: NamedRef | null;
 }
 
+/** Narrows the redemption history; empty values mean "any". */
+export interface VoucherRedemptionFilters {
+  categoryId?: string;
+  benefitId?: string;
+  /** Redeemed-at dates, yyyy-MM-dd in the tenant's timezone, inclusive. */
+  startDate?: string;
+  endDate?: string;
+}
+
+/** How many redemptions match the filters, and what was redeemed most. */
+export interface VoucherRedemptionSummary {
+  totalRedeemed: number;
+  topCategory: (NamedRef & { count: number }) | null;
+  topBenefit: (NamedRef & { count: number }) | null;
+}
+
 export interface VoucherRedemptionResult {
   id: string;
   voucherId: string;

@@ -15,7 +15,7 @@ export default function VoucherRedemptionPage() {
       </div>
       <section>
         <h2 className="mb-2 text-lg font-semibold">Redemption history</h2>
-        <RedemptionHistoryTable />
+        <RedemptionHistoryTable showSummary={false} />
       </section>
     </main>
   );

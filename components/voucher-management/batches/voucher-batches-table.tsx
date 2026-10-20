@@ -118,6 +118,14 @@ const columns: AppColumnDef<VoucherBatchListItem>[] = [
     cell: ({ row }) => <BooleanBadge value={row.original.isActive} />,
   },
   {
+    accessorKey: "createdAt",
+    header: "Created",
+    size: 170,
+    // A full UTC timestamp (not yyyy-MM-dd), so shown in local time.
+    cell: ({ row }) =>
+      format(new Date(row.original.createdAt), "dd MMM yyyy HH:mm"),
+  },
+  {
     id: "actions",
     header: "Actions",
     size: 100,

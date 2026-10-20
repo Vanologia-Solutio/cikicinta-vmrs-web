@@ -47,6 +47,7 @@ export const ENDPOINTS = {
     check: "/vouchers/check",
     redeem: "/vouchers/redeem",
     redemptions: "/vouchers/redeem",
+    redemptionSummary: "/vouchers/redeem/summary",
     redemptionById: "/vouchers/redeem/{id}",
     batches: {
       create: "/vouchers/batches",

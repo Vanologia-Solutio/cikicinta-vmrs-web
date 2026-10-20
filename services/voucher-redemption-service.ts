@@ -5,7 +5,9 @@ import { PaginationQuery } from "@/shared/types/general";
 import {
   VoucherRedemption,
   VoucherRedemptionDetail,
+  VoucherRedemptionFilters,
   VoucherRedemptionResult,
+  VoucherRedemptionSummary,
 } from "@/shared/types/voucher-redemption";
 import { AxiosInstance } from "axios";
 
@@ -19,11 +21,21 @@ class VoucherRedemptionService {
   }
 
   async getAll(
-    query: PaginationQuery,
+    query: PaginationQuery & VoucherRedemptionFilters,
   ): Promise<PaginatedResponse<VoucherRedemption>> {
     const res = await this.httpClient.get(ENDPOINTS.vouchers.redemptions, {
       params: query,
     });
+    return res.data;
+  }
+
+  async getSummary(
+    query: Pick<PaginationQuery, "keyword"> & VoucherRedemptionFilters,
+  ): Promise<ApiResponse<VoucherRedemptionSummary>> {
+    const res = await this.httpClient.get(
+      ENDPOINTS.vouchers.redemptionSummary,
+      { params: query },
+    );
     return res.data;
   }
 
