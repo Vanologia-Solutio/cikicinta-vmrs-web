@@ -10,12 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { voucherCheckQueries } from "@/hooks/use-voucher-check";
 import { voucherRedemptionQueries } from "@/hooks/use-voucher-redemption";
@@ -25,9 +20,7 @@ import { VoucherRedemptionResult } from "@/shared/types/voucher-redemption";
 import {
   CheckCircleIcon,
   MagnifyingGlassIcon,
-  SealCheckIcon,
   WarningCircleIcon,
-  XIcon,
 } from "@phosphor-icons/react";
 import { format } from "date-fns";
 import { useState } from "react";
@@ -38,13 +31,12 @@ interface RedeemFormValues {
 }
 
 /**
- * Redeeming is two steps on purpose, because it cannot be undone: a scan only
- * looks the voucher up, and the operator then confirms with the Redeem
- * button. Submitting the code form only ever looks a voucher up, so neither
- * a scanner's Enter nor the Look up button can redeem by accident.
+ * An eligible voucher is redeemed as soon as it is looked up, so one scan is
+ * all the operator does. Submitting the code form is the only trigger, and
+ * the card of what was checked stays on screen as the receipt.
  */
 export function VoucherRedeem() {
-  const [pending, setPending] = useState<VoucherCheckResult | null>(null);
+  const [checked, setChecked] = useState<VoucherCheckResult | null>(null);
   const [redeemed, setRedeemed] = useState<VoucherRedemptionResult | null>(
     null,
   );
@@ -57,42 +49,34 @@ export function VoucherRedeem() {
 
   const form = useForm<RedeemFormValues>({ defaultValues: { code: "" } });
   const isBusy = isChecking || isRedeeming;
-  const canConfirm = !!pending?.eligible && !isBusy;
 
   const readyForNextScan = () => {
     form.reset();
     form.setFocus("code");
   };
 
-  const lookUp = async (code: string) => {
+  const lookUpAndRedeem = async (code: string) => {
+    setChecked(null);
     setRedeemed(null);
     setFailure(null);
     try {
-      const res = await checkVoucher(code);
-      setPending(res.data);
+      const { data: result } = await checkVoucher(code);
+      setChecked(result);
+      if (!result.eligible) return;
+
+      try {
+        const res = await redeemVoucher(result.code);
+        setRedeemed(res.data);
+        notify.success(res.message ?? "Voucher redeemed successfully");
+      } catch (error) {
+        // Kept on screen, not just a toast: the operator has a customer waiting
+        // and needs to see why it did not go through.
+        setFailure(errorMessage(error));
+      }
     } catch (error) {
-      setPending(null);
       notify.error("Could not check the voucher", {
         description: errorMessage(error),
       });
-    } finally {
-      readyForNextScan();
-    }
-  };
-
-  const confirm = async () => {
-    if (!pending?.eligible) return;
-    setFailure(null);
-    try {
-      const res = await redeemVoucher(pending.code);
-      setRedeemed(res.data);
-      setPending(null);
-      notify.success(res.message ?? "Voucher redeemed successfully");
-    } catch (error) {
-      // Kept on screen, not just a toast: the operator has a customer waiting
-      // and needs to see why it did not go through.
-      setFailure(errorMessage(error));
-      setPending(null);
     } finally {
       readyForNextScan();
     }
@@ -103,13 +87,8 @@ export function VoucherRedeem() {
     // mid-request is dropped instead.
     if (isBusy) return;
     const scanned = code.trim();
-    if (scanned) return lookUp(scanned);
+    if (scanned) return lookUpAndRedeem(scanned);
     form.setError("code", { message: "Scan or enter a voucher code" });
-  };
-
-  const cancel = () => {
-    setPending(null);
-    readyForNextScan();
   };
 
   return (
@@ -119,7 +98,7 @@ export function VoucherRedeem() {
           <CardTitle>Voucher code</CardTitle>
           <CardDescription>
             Scan the sticker&apos;s barcode, or type its code and press Enter.
-            Check the details, then confirm to redeem.
+            An eligible voucher is redeemed right away.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -142,14 +121,13 @@ export function VoucherRedeem() {
                     />
                     <Button type="submit" variant="outline" disabled={isBusy}>
                       <MagnifyingGlassIcon />
-                      {isChecking ? "Checking..." : "Look up"}
+                      {isChecking
+                        ? "Checking..."
+                        : isRedeeming
+                          ? "Redeeming..."
+                          : "Redeem"}
                     </Button>
                   </div>
-                  <FieldDescription>
-                    {pending?.eligible
-                      ? "Press Redeem voucher to confirm, or scan another to replace it."
-                      : "Nothing is redeemed until you confirm."}
-                  </FieldDescription>
                   {fieldState.error && (
                     <FieldError errors={[fieldState.error]} />
                   )}
@@ -179,22 +157,7 @@ export function VoucherRedeem() {
         </Alert>
       )}
 
-      {pending && (
-        <VoucherResultCard result={pending}>
-          {pending.eligible && (
-            <div className="flex w-full flex-wrap items-center justify-end gap-2">
-              <Button variant="ghost" disabled={isBusy} onClick={cancel}>
-                <XIcon />
-                Cancel
-              </Button>
-              <Button size="lg" disabled={!canConfirm} onClick={confirm}>
-                <SealCheckIcon />
-                {isRedeeming ? "Redeeming..." : "Redeem voucher"}
-              </Button>
-            </div>
-          )}
-        </VoucherResultCard>
-      )}
+      {checked && <VoucherResultCard result={checked} redeemed={!!redeemed} />}
     </div>
   );
 }

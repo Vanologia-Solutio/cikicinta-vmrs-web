@@ -48,4 +48,6 @@ export interface ConfirmPrintRunDto {
 export interface PrintRunConfirmation {
   printed: number;
   notPrinted: number;
+  /** Vouchers deleted because the batch was ended early. */
+  deleted: number;
 }

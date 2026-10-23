@@ -10,7 +10,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -50,7 +55,7 @@ const OUTCOMES: { value: PrintRunOutcome; label: string; hint: string }[] = [
   {
     value: "stopped_at",
     label: "It stopped partway",
-    hint: "Count everything up to the last good sticker; the rest stays unprinted.",
+    hint: "Count everything up to the last good sticker, then delete every voucher of this batch that never printed.",
   },
   {
     value: "none",
@@ -119,13 +124,16 @@ function PrintRunContent({
         lastPrintedCode:
           values.outcome === "stopped_at" ? values.lastPrintedCode : undefined,
       });
-      const { printed, notPrinted } = res.data;
-      notify.success(
-        `${formatSeparator(printed)} counted as printed`,
-        notPrinted > 0
-          ? { description: `${formatSeparator(notPrinted)} left to print.` }
-          : undefined,
-      );
+      const { printed, notPrinted, deleted } = res.data;
+      const description =
+        deleted > 0
+          ? `${formatSeparator(deleted)} unprinted vouchers deleted.`
+          : notPrinted > 0
+            ? `${formatSeparator(notPrinted)} left to print.`
+            : undefined;
+      notify.success(`${formatSeparator(printed)} counted as printed`, {
+        description,
+      });
       onClose();
     } catch (error) {
       notify.error("Could not record the check", {
@@ -265,6 +273,10 @@ function PrintRunContent({
                   {fieldState.error && (
                     <FieldError errors={[fieldState.error]} />
                   )}
+                  <FieldDescription className="text-destructive">
+                    This permanently deletes every voucher of the batch that has
+                    not printed, and cannot be undone.
+                  </FieldDescription>
                 </Field>
               )}
             />
@@ -281,7 +293,9 @@ function PrintRunContent({
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending && <SpinnerGapIcon className="animate-spin" />}
-              Record check
+              {outcome === "stopped_at"
+                ? "Record and delete rest"
+                : "Record check"}
             </Button>
           </DialogFooter>
         </form>

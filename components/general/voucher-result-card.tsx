@@ -60,9 +60,12 @@ function details(result: VoucherCheckResult): [string, ReactNode][] {
  */
 export function VoucherResultCard({
   result,
+  redeemed = false,
   children,
 }: {
   result: VoucherCheckResult;
+  /** The voucher was redeemed just now, so show that instead of "Eligible". */
+  redeemed?: boolean;
   children?: ReactNode;
 }) {
   return (
@@ -79,7 +82,11 @@ export function VoucherResultCard({
           <CardTitle>{result.code}</CardTitle>
           <Badge variant={result.eligible ? "default" : "destructive"}>
             {result.eligible ? <CheckCircleIcon /> : <XCircleIcon />}
-            {result.eligible ? "Eligible" : "Not eligible"}
+            {redeemed
+              ? "Redeemed"
+              : result.eligible
+                ? "Eligible"
+                : "Not eligible"}
           </Badge>
         </div>
         {!result.eligible && (
